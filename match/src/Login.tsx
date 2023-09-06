@@ -1,11 +1,14 @@
 import React from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import {useNavigation} from 'react-router-dom';
 
 const PageA: React.FC = () => {
+  const navigate = useNavigate();
   const onFinish = (values: any) => {
     console.log('Received values of form: ', values);
+    navigate('/Menu');
   };
 
   return (
@@ -45,10 +48,14 @@ const PageA: React.FC = () => {
         <Button type="primary" htmlType="submit" className="login-form-button">
           Log in
         </Button>
-        Or       
+
       </Form.Item>
       <Link to="/register">register now!</Link>
+      <br /> 
+      <br /> 
+      <Link to="/">back Home</Link>
     </Form>
+    
   );
 };
 
