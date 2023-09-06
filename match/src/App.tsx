@@ -4,7 +4,7 @@ import Home from "./Home";
 import PageA from "./Login";
 import Register from "./subsc";
 import Menu from "./Menu";
-import randomMatch from "./randomMatch";
+import RandomMatch from "./randomMatch";
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path="/page_a" element={<PageA />} />
         <Route path="/register" element={<Register/>} />
         <Route path="/Menu" element={<Menu/>} />
-        <Route path="/randomMatch" element={<randomMatch/>} />
+        <Route path="/randomMatch" element={<RandomMatch/>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
