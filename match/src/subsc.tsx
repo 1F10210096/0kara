@@ -12,6 +12,7 @@ import {
   Row,
   Select,
 } from 'antd';
+import { Link } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -286,7 +287,10 @@ const Register: React.FC = () => {
           Register
         </Button>
       </Form.Item>
+      <br /> 
+      <Link to="/">back Home</Link>
     </Form>
+    
   );
 };
 
