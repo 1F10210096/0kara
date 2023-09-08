@@ -7,13 +7,18 @@ const Menu: React.FC = () => {
     const navigate = useNavigate();
   const search = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('Button clicked!');
-    navigate('/ramdomMatch');
+    navigate('/randomMatch');
+  };
+  const Friend = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('Button clicked!');
+    navigate('/friend');
   };
 
   return (
     <Space direction="vertical">
       <Space wrap>
         <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
+        <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button>
       </Space>
     </Space>
   );
