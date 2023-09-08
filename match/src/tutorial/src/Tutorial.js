@@ -7,7 +7,10 @@ import {
   uuidV4,
 } from '@skyway-sdk/room';
 
-import { appId, secret } from '../../../env';
+import { appId, secret } from './env';
+import { useEffect } from 'react';
+
+function Tutorial() {
 
 const token = new SkyWayAuthToken({
   jti: uuidV4(),
@@ -53,7 +56,9 @@ const token = new SkyWayAuthToken({
   },
 }).encode(secret);
 
-(async () => {
+async function setupSkyway() {
+  try {
+  console.log('setupSkyway');
   const localVideo = document.getElementById('local-video');
   const buttonArea = document.getElementById('button-area');
   const remoteMediaArea = document.getElementById('remote-media-area');
@@ -61,12 +66,12 @@ const token = new SkyWayAuthToken({
 
   const myId = document.getElementById('my-id');
   const joinButton = document.getElementById('join');
-
+console.log('setupSkyway2');
   const { audio, video } =
     await SkyWayStreamFactory.createMicrophoneAudioAndCameraStream();
   video.attach(localVideo);
   await localVideo.play();
-
+console.log('setupSkyway3');
   joinButton.onclick = async () => {
     if (roomNameInput.value === '') return;
 
@@ -116,4 +121,25 @@ const token = new SkyWayAuthToken({
     room.publications.forEach(subscribeAndAttach);
     room.onStreamPublished.add((e) => subscribeAndAttach(e.publication));
   };
-})();
+} catch (error) {
+  console.error("An error occurred:", error.message);
+}
+};
+useEffect(() => {
+  setupSkyway();
+}, []); 
+return (
+  <div>
+    <p>ID: <span id="my-id"></span></p>
+    <div>
+      room name: <input id="room-name" type="text" />
+      <button id="join">join</button>
+    </div>
+    <video id="local-video" width="400px" muted playsInline></video>
+    <div id="button-area"></div>
+    <div id="remote-media-area"></div>
+  </div>
+);
+}
+
+export default Tutorial;

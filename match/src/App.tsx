@@ -7,6 +7,7 @@ import Menu from "./Menu";
 import RandomMatch from "./randomMatch";
 import Dm from "./dm";
 import Friend from "./friend";
+import Tutorial from "./tutorial/src/Tutorial";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,9 @@ function App() {
         <Route path="/dm" element={<Dm/>} />
         <Route path="/friend" element={<Friend/>} />
         <Route path="*" element={<Navigate to="/" />} />
+
+        <Route path="/tutorial"element={<Tutorial/>} />
+    
       </Routes>
     </BrowserRouter>
   );
