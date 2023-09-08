@@ -558,7 +558,7 @@ function hmrAccept(bundle, id) {
 
 },{}],"8yPwG":[function(require,module,exports) {
 var _room = require("@skyway-sdk/room");
-var _env = require("../../../env");
+var _env = require("../src/env");
 const token = new (0, _room.SkyWayAuthToken)({
     jti: (0, _room.uuidV4)(),
     iat: (0, _room.nowInSec)(),
