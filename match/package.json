@@ -12,6 +12,7 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "antd": "^5.8.6",
+    "jquery": "^3.7.1",
     "particles.js": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -47,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.18",
     "@types/react-native": "^0.72.2"
   }
 }

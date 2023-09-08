@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import 'particles.js';
-
+import $ from "jquery";
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
-
+  const particleRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (canvasRef.current) {
         init(canvasRef.current);
@@ -93,12 +93,23 @@ export default function Home() {
     }
 }, []);
 
+useEffect(() => {
+  if (particleRef.current && ($ as any).particleText) {
+    ($(particleRef.current) as any).particleText({
+          text: "If you can dream it<br>you can do it.<br>日本語もいけるよ",
+          colors: ["#fff", "#ccc", "#ddd"],
+          speed: "high",
+      });
+  }
+}, []);
+
   return (
     <div id="wrapper">
       <h1>Home</h1>
       <Link to="/page_a">PageA</Link>
       <div ref={particlesRef} id="particles-js" style={{ height: '60vh' }}></div>
       <canvas ref={canvasRef} id="waveCanvas" style={{ marginTop: '-100px' }}></canvas>
+      <div id="particle" ref={particleRef}></div>;
     </div>
   );
 }
