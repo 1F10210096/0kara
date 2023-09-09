@@ -7,7 +7,7 @@ const Menu: React.FC = () => {
     const navigate = useNavigate();
   const search = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('Button clicked!');
-    navigate('/randomMatch');
+    navigate('/tutorial');
   };
   const Friend = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('Button clicked!');

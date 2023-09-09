@@ -1,69 +1,157 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import 'particles.js';
+import $ from "jquery";
+import './Home.css';
+import backgroundImage from './back.jpg';
+const bgStyle = {
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundPosition: 'center -1-0px', // ここで背景の垂直位置を指定
+  };
 
-// Include the TypeScript (or JavaScript) functions you provided before.
-// Assuming you named the file as 'waveAnimation.ts' (or 'waveAnimation.js')
-// import './waveAnimation';
-
+  
 export default function Home() {
-  const canvas1Ref = useRef<HTMLCanvasElement>(null);
-  const canvas2Ref = useRef<HTMLCanvasElement>(null);
-  const canvas3Ref = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<HTMLDivElement>(null);
+  const particleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (canvasRef.current) {
+        init(canvasRef.current);
+    }
+  }, []);
 
   useEffect(() => {
-    if (canvas1Ref.current && canvas2Ref.current && canvas3Ref.current) {
-        init(canvas1Ref.current, canvas2Ref.current, canvas3Ref.current);
+
+    if ((window as any).particlesJS) {
+        (window as any).particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 30,
+                    density: {
+                        enable: true,
+                        value_area: 1121.6780303333778
+                    }
+                },
+                color: {
+                    value: "#fff"
+                },
+                shape: {
+                    type: "image",
+                    stroke: {
+                        width: 0,
+                    },
+                    image: {
+                        src: "http://coco-factory.jp/ugokuweb/wp-content/themes/ugokuweb/data/move02/5-6/img/flower.png",
+                        width: 120,
+                        height: 120
+                    }
+                },
+                opacity: {
+                    value: 0.06409588744762158,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 8.011985930952697,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 4,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: false,
+                },
+                move: {
+                    enable: true,
+                    speed: 7,
+                    direction: "bottom-right",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 281.9177489524316,
+                        rotateY: 127.670995809726
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: false,
+                    },
+                    onclick: {
+                        enable: false,
+                    },
+                    resize: true
+                }
+            },
+            retina_detect: false
+        });
     }
 }, []);
 
+useEffect(() => {
+  if (particleRef.current && ($ as any).particleText) {
+    ($(particleRef.current) as any).particleText({
+          text: "If you can dream it<br>you can do it.<br>日本語もいけるよ",
+          colors: ["#fff", "#ccc", "#ddd"],
+          speed: "high",
+      });
+  }
+}, []);
+
+
   return (
-    <div id="wrapper">
-      <h1>Home</h1>
-      <Link to="/page_a">PageA</Link>
-      
-      <canvas ref={canvas1Ref} id="waveCanvas"></canvas>
-<canvas ref={canvas2Ref} id="waveCanvas2"></canvas>
-<canvas ref={canvas3Ref} id="waveCanvas3"></canvas>
-     
-    </div>
+    <div style={bgStyle}>
+                <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
+      <div id="particle" ref={particleRef}></div>;
+<h2>MatchigApp</h2>
+<div className="btn-container">
+<Link to="/page_a" className="btn btn-gradient">
+            <span>Login</span>
+        </Link>
+        </div>
+
+      </div>
   );
 }
 
 let unit: number = 100;
-let canvasList: HTMLCanvasElement[] = [];
 let info: { seconds?: number, t?: number } = {};
-let colorList: string[][] = [];
+let color: string[] = ['#14cb36', '#0ed772', '#0ccb92'];
 
-function init(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement, canvas3: HTMLCanvasElement): void {
+function init(canvas: HTMLCanvasElement): void {
   info.seconds = 0;
   info.t = 0;
 
-  // ここでcanvas要素を直接使用します
-  canvasList.push(canvas1);
-  colorList.push(['#666', '#ccc', '#eee']);
-  
-  canvasList.push(canvas2);
-  colorList.push(['#43c0e4']);
-  
-  canvasList.push(canvas3);
-  colorList.push(['#fff']);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = document.documentElement.clientWidth * dpr;
+  canvas.height = 400 * dpr;
+  canvas.style.width = `${document.documentElement.clientWidth}px`;
+  canvas.style.height = '400px';
+  const context = canvas.getContext("2d");
+  context!.scale(dpr, dpr);
 
-  for(let canvas of canvasList) {
-      canvas.width = document.documentElement.clientWidth;
-      canvas.height = 200;
-      (canvas as any).contextCache = canvas.getContext("2d");
-  }
-  update();
+  (canvas as any).contextCache = context;
+  
+  update(canvas);
 }
-
-
-function update(): void {
-    for(let canvas of canvasList) {
-        draw(canvas, colorList[canvasList.indexOf(canvas)]);
-    }
+function update(canvas: HTMLCanvasElement): void { // ここでcanvasを受け取るように変更
+    draw(canvas, color);
     info.seconds = info.seconds! + .014;
     info.t = info.seconds! * Math.PI;
-    setTimeout(update, 35);
+    setTimeout(() => update(canvas), 40); // ここも変更して、canvasを再帰的に引数として渡す
 }
 
 function draw(canvas: HTMLCanvasElement, color: string[]): void {
@@ -95,9 +183,10 @@ function drawSine(canvas: HTMLCanvasElement, t: number, zoom: number, delay: num
     let y: number = Math.sin(x) / zoom;
     context.moveTo(yAxis, unit * y + xAxis);
 
-    for (let i = yAxis; i <= canvas.width + 10; i += 10) {
-        x = t + (-yAxis + i) / unit / zoom;
-        y = Math.sin(x - delay) / 3;
-        context.lineTo(i, unit * y + xAxis);
-    }
+    for (let i = yAxis; i <= canvas.width + 10; i += 5) { // 10から5に変更
+      x = t + (-yAxis + i) / unit / zoom;
+      y = Math.sin(x - delay) / 3;
+      context.lineTo(i, unit * y + xAxis);
+  }
 }
+
