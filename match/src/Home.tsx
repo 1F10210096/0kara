@@ -2,6 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import 'particles.js';
 import $ from "jquery";
+import './Home.css';
+import backgroundImage from './back.jpg';
+const bgStyle = {
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundPosition: 'center -1-0px', // ここで背景の垂直位置を指定
+  };
+
+  
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
@@ -103,14 +111,19 @@ useEffect(() => {
   }
 }, []);
 
+
   return (
-    <div id="wrapper">
-      <h1>Home</h1>
-      <Link to="/page_a">PageA</Link>
-      <div ref={particlesRef} id="particles-js" style={{ height: '60vh' }}></div>
-      <canvas ref={canvasRef} id="waveCanvas" style={{ marginTop: '-100px' }}></canvas>
+    <div style={bgStyle}>
+                <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
       <div id="particle" ref={particleRef}></div>;
-    </div>
+<h2>MatchigApp</h2>
+<div className="btn-container">
+<Link to="/page_a" className="btn btn-gradient">
+            <span>Login</span>
+        </Link>
+        </div>
+
+      </div>
   );
 }
 
