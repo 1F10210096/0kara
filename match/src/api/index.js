@@ -32,8 +32,26 @@ app.use(cors());
 
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
-
 app.post('/page_a', (req, res) => {
+    const { username, password } = req.body;
+  
+    // データベースでユーザ名とパスワードが一致するエントリを探す
+    User.findOne({ username, password }, (err, foundUser) => {
+      if (err) {
+        res.json({ success: false, message: 'Error querying the database!' });
+        return;
+      }
+  
+      if (foundUser) {
+        // 一致するエントリが見つかった場合
+        res.json({ success: true, message: 'Logged in successfully!', userId: foundUser._id });
+      } else {
+        // 一致するエントリが見つからなかった場合
+        res.json({ success: false, message: 'Invalid username or password!' });
+      }
+    });
+  });
+app.post('/subsc', (req, res) => {
   const { username, password } = req.body;
 
   // データベースに保存
