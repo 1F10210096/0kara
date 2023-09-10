@@ -142,13 +142,13 @@
       this[globalName] = mainExports;
     }
   }
-})({"42Jbp":[function(require,module,exports) {
+})({"55EVS":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
-module.bundle.HMR_BUNDLE_ID = "9b2106479974efd2";
+module.bundle.HMR_BUNDLE_ID = "d31b34ad88ac1ca2";
 "use strict";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, chrome, browser, globalThis, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
 import type {
@@ -556,9 +556,9 @@ function hmrAccept(bundle, id) {
     });
 }
 
-},{}],"8yPwG":[function(require,module,exports) {
+},{}],"hMOu1":[function(require,module,exports) {
 var _room = require("@skyway-sdk/room");
-var _env = require("../../p2p-room/src/env");
+var _env = require("../../../env");
 const token = new (0, _room.SkyWayAuthToken)({
     jti: (0, _room.uuidV4)(),
     iat: (0, _room.nowInSec)(),
@@ -619,23 +619,31 @@ const token = new (0, _room.SkyWayAuthToken)({
     const localVideo = document.getElementById("local-video");
     const buttonArea = document.getElementById("button-area");
     const remoteMediaArea = document.getElementById("remote-media-area");
-    const roomNameInput = document.getElementById("room-name");
+    const channelNameInput = document.getElementById("channel-name");
+    const dataStreamInput = document.getElementById("data-stream");
     const myId = document.getElementById("my-id");
     const joinButton = document.getElementById("join");
+    const writeButton = document.getElementById("write");
     const { audio , video  } = await (0, _room.SkyWayStreamFactory).createMicrophoneAudioAndCameraStream();
     video.attach(localVideo);
     await localVideo.play();
+    const data = await (0, _room.SkyWayStreamFactory).createDataStream();
+    writeButton.onclick = ()=>{
+        data.write(dataStreamInput.value);
+        dataStreamInput.value = "";
+    };
     joinButton.onclick = async ()=>{
-        if (roomNameInput.value === "") return;
+        if (channelNameInput.value === "") return;
         const context = await (0, _room.SkyWayContext).Create(token);
-        const room = await (0, _room.SkyWayRoom).FindOrCreate(context, {
+        const channel = await (0, _room.SkyWayRoom).FindOrCreate(context, {
             type: "p2p",
-            name: roomNameInput.value
+            name: channelNameInput.value
         });
-        const me = await room.join();
+        const me = await channel.join();
         myId.textContent = me.id;
         await me.publish(audio);
         await me.publish(video);
+        await me.publish(data);
         const subscribeAndAttach = (publication)=>{
             if (publication.publisher.id === me.id) return;
             const subscribeButton = document.createElement("button");
@@ -643,27 +651,39 @@ const token = new (0, _room.SkyWayAuthToken)({
             buttonArea.appendChild(subscribeButton);
             subscribeButton.onclick = async ()=>{
                 const { stream  } = await me.subscribe(publication.id);
-                let newMedia;
-                switch(stream.track.kind){
+                switch(stream.contentType){
                     case "video":
-                        newMedia = document.createElement("video");
-                        newMedia.playsInline = true;
-                        newMedia.autoplay = true;
+                        {
+                            const elm = document.createElement("video");
+                            elm.playsInline = true;
+                            elm.autoplay = true;
+                            stream.attach(elm);
+                            remoteMediaArea.appendChild(elm);
+                        }
                         break;
                     case "audio":
-                        newMedia = document.createElement("audio");
-                        newMedia.controls = true;
-                        newMedia.autoplay = true;
+                        {
+                            const elm = document.createElement("audio");
+                            elm.controls = true;
+                            elm.autoplay = true;
+                            stream.attach(elm);
+                            remoteMediaArea.appendChild(elm);
+                        }
                         break;
-                    default:
-                        return;
+                    case "data":
+                        {
+                            const elm = document.createElement("div");
+                            remoteMediaArea.appendChild(elm);
+                            elm.innerText = "data\n";
+                            stream.onData.add((data)=>{
+                                elm.innerText += data + "\n";
+                            });
+                        }
                 }
-                stream.attach(newMedia);
-                remoteMediaArea.appendChild(newMedia);
             };
         };
-        room.publications.forEach(subscribeAndAttach);
-        room.onStreamPublished.add((e)=>subscribeAndAttach(e.publication));
+        channel.publications.forEach(subscribeAndAttach);
+        channel.onStreamPublished.add((e)=>subscribeAndAttach(e.publication));
     };
 })();
 
@@ -735,8 +755,8 @@ parcelHelpers.export(exports, "roomTypes", ()=>roomTypes);
 parcelHelpers.export(exports, "tokenErrors", ()=>tokenErrors);
 parcelHelpers.export(exports, "uuidV4", ()=>uuidV4);
 var Buffer = require("6a209fe2bbb7fee2").Buffer;
-var process = require("1934995c74222564");
 var global = arguments[3];
+var process = require("1934995c74222564");
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -46346,6 +46366,6 @@ parcelHelpers.export(exports, "secret", ()=>secret);
 const appId = "733aafd6-fff6-4646-902b-1b6395a04b99";
 const secret = "HCnmrKeMe+I1u5sPbK0Qhp1f7+Fp/MZgAQtsTKbpkPs=";
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["42Jbp","8yPwG"], "8yPwG", "parcelRequire641b")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["55EVS","hMOu1"], "hMOu1", "parcelRequire641b")
 
-//# sourceMappingURL=index.9974efd2.js.map
+//# sourceMappingURL=index.88ac1ca2.js.map

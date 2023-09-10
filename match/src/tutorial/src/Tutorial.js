@@ -7,7 +7,7 @@ import {
   uuidV4,
 } from '@skyway-sdk/room';
 
-import { appId, secret } from './env';
+import { appId, secret } from '../../p2p-room/src/env';
 import { useEffect } from 'react';
 
 function Tutorial() {
