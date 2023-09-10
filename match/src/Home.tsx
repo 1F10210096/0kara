@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import 'particles.js';
 import $ from "jquery";
 import './Home.css';
+import './Home2.css';
 import backgroundImage from './back.jpg';
 const bgStyle = {
     backgroundImage: `url(${backgroundImage})`,
@@ -114,15 +115,14 @@ useEffect(() => {
 
   return (
     <div style={bgStyle}>
-                <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
-      <div id="particle" ref={particleRef}></div>;
 <h2>MatchigApp</h2>
 <div className="btn-container">
 <Link to="/page_a" className="btn btn-gradient">
             <span>Login</span>
         </Link>
         </div>
-
+        <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
+      <div id="particle" ref={particleRef}></div>;
       </div>
   );
 }

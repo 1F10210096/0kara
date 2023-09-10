@@ -3,15 +3,46 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import {useNavigation} from 'react-router-dom';
+import backgroundImage from './back.jpg';
+import axios from 'axios';
+const bgStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundImage: `url(${backgroundImage})`,
+  height: '100vh',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover'
+};
+
+const squareStyle = {
+  width: '400px',
+  height: '340px',
+  backgroundColor: 'white',
+  padding: '20px',
+};
 
 const PageA: React.FC = () => {
   const navigate = useNavigate();
   const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
-    navigate('/Menu');
+    axios.post('http://localhost:5000/page_a', values)
+    .then(response => {
+      console.log(response.data);
+      if (response.data.success) {
+        console.log("a")
+        navigate('/Menu');
+      } else {
+        // ログインが失敗した場合の処理をここに追加します。
+        console.error(response.data.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error logging in:", error);
+    });
   };
-
   return (
+    <div style={bgStyle}>
+        <div style={squareStyle}>
     <Form
       name="normal_login"
       className="login-form"
@@ -55,7 +86,8 @@ const PageA: React.FC = () => {
       <br /> 
       <Link to="/">back Home</Link>
     </Form>
-    
+    </div>
+    </div>
   );
 };
 
