@@ -8,6 +8,7 @@ import RandomMatch from "./randomMatch";
 import Dm from "./dm";
 import Friend from "./friend";
 import Tutorial from "./tutorial/src/Tutorial";
+import P2p from "./p2p-room/src/main";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/randomMatch" element={<RandomMatch/>} />
         <Route path="/dm" element={<Dm/>} />
         <Route path="/friend" element={<Friend/>} />
+        <Route path="/p2p-room" element={<P2p/>} />
         <Route path="*" element={<Navigate to="/" />} />
 
         <Route path="/tutorial"element={<Tutorial/>} />
