@@ -116,7 +116,7 @@ const Menu1: React.FC = () => {
     const [isInWaitingList, setIsInWaitingList] = useState(false);
     const [current, setCurrent] = useState('mail');
     const roomNameInputRef = useRef<HTMLInputElement>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(true);
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

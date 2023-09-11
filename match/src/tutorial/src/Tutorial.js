@@ -9,7 +9,7 @@ import {
 
 import { appId, secret } from '../../p2p-room/src/env';
 import { useEffect } from 'react';
-
+import './index.css';
 function Tutorial(room12) {
 
 const token = new SkyWayAuthToken({
@@ -77,6 +77,7 @@ console.log('setupSkyway3');
 
     const context = await SkyWayContext.Create(token);
     console.log(roomNameInput.value)
+    roomNameInput.value = room12;
     const room = await SkyWayRoom.FindOrCreate(context, {
       type: 'p2p',
       name: roomNameInput.value,
@@ -136,7 +137,7 @@ return (
       room name: <input id="room-name" type="text" />
       <button id="join">join</button>
     </div>
-    <video id="local-video" width="400px" muted playsInline></video>
+    <video id="local-video" width="300px"  muted playsInline></video>
     <div id="button-area"></div>
     <div id="remote-media-area"></div>
   </div>
