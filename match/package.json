@@ -9,7 +9,6 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.48",
-    "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "antd": "^5.8.6",
     "axios": "^1.5.0",
@@ -53,7 +52,9 @@
     ]
   },
   "devDependencies": {
+    "@types/css-font-loading-module": "^0.0.9",
     "@types/jquery": "^3.5.18",
+    "@types/react": "^18.2.21",
     "@types/react-native": "^0.72.2"
   }
 }
