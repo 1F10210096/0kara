@@ -25,9 +25,28 @@ const User = mongoose.model('User', {
   username: String,
   password: String
 });
+console.log("dwdw")
 
 // Enable CORS for all routes
 app.use(cors());
+try {
+//test
+app.get('/getUsers', async (req, res) => {
+  try {
+    const users = await User.find();
+    console.log("dawdwd")
+    console.log(users)
+    console.log("dawdwd")
+    res.json({ success: true, users });
+  } catch (err) {
+    res.json({ success: false, message: 'Error fetching users!' });
+  }
+});
+} catch (err) {
+  console.log(err);
+}
+
+//test
 
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
@@ -111,10 +130,12 @@ app.get('/matchUser/:userId', async (req, res) => {
     }
 
     const matchedUser = users[0];  // シンプルな例では、最初の待機ユーザーをマッチさせます。
+    console.log(matchedUser,"matchedUser")
 
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
+
 
     res.json({ success: true, match: matchedUser.userId });
   } catch (err) {
@@ -131,3 +152,4 @@ app.listen(PORT, () => {
 } catch (err) {
   console.log(err);
 }
+

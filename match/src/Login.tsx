@@ -139,7 +139,7 @@ const PageA: React.FC = () => {
           <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
       <div id="particle" ref={particleRef}></div>;
         <div style={squareStyle}>
-        <p className="fuchidori" style={{ fontSize: '30px' }}>アカウント作成</p>
+        <p className="fuchidori" style={{ fontSize: '30px' }}>ログイン</p>
     <Form
       name="normal_login"
       className="login-form"
