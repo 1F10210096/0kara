@@ -123,13 +123,14 @@ const Menu1: React.FC = () => {
     navigate('/friend');
   };
 
-  const userId = "uiku"
-
-  async function sendUserIdToBackend(userId:string) {
+  const userId = "uikdwdadu"
+    async function sendUserIdToBackend(userId: string) {
     try {
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
       if (response.data.success) {
         console.log('User added to waiting list');
+        // ユーザーが待機リストに追加されたら、マッチングをリクエスト
+        requestMatching(userId);
       } else {
         console.log('Error:', response.data.message);
       }
@@ -137,10 +138,24 @@ const Menu1: React.FC = () => {
       console.error('Failed to send userId:', error);
     }
   }
+  
+  async function requestMatching(userId: string) {
+    try {
+      const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
+      if (response.data.success) {
+        const matchedUserId = response.data.match;
+        console.log(`Matched with user: ${matchedUserId}`);
+      } else {
+        console.error('Matching error:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error requesting matching:', error);
+    }
+  }
+  
   function connect() {
-  sendUserIdToBackend(userId);
-}
-
+    sendUserIdToBackend(userId);
+  }
 
 
 
