@@ -7,6 +7,9 @@ import backgroundImage from './back.jpg';
 import axios from 'axios';
 import './Home.css';
 import 'particles.js';
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 const bgStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -38,19 +41,20 @@ const Register: React.FC = () => {
   const particleRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
   const onFinish = (values: any) => {
-    axios.post('http://localhost:5000/subsc', values)  // URLを変更
-    .then(response => {
-      console.log(response.data);
-      if (response.data.success) {
-        navigate('/Menu');
-      } else {
-        console.error(response.data.message);
-      }
-    })
-    .catch(error => {
-      console.error("Error logging in:", error);
-    });
+    const auth = getAuth();
+    console.log("Received values of form: ", values);
+    const email = values.email;
+    const password = values.password;
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("User registered:", userCredential.user);
+        
+      })
+      .catch((error) => {
+        console.error("Error registering:", error.message);
+      });
   };
+
   useEffect(() => {
 
     if ((window as any).particlesJS) {
@@ -149,6 +153,17 @@ const Register: React.FC = () => {
         rules={[{ required: true, message: 'Please input your Username!' }]}
       >
         <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+      </Form.Item>
+      <Form.Item
+  name="email"
+
+        rules={[{ required: true, message: 'Please input your Email!' }]}
+      >
+        <Input
+          prefix={<LockOutlined className="site-form-item-icon" />}
+          type='email'
+          placeholder='Email'
+        />
       </Form.Item>
       <Form.Item
         name="password"

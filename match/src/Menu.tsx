@@ -13,6 +13,7 @@ import { uuidV4 } from '@skyway-sdk/room';
 import P2p from './p2p-room/src/main';
 import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -120,6 +121,20 @@ const Menu1: React.FC = () => {
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/auth.user
+    const uid = user.uid;
+    console.log(uid)
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
     //test
     useEffect(() => {
