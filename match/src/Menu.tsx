@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import { Button, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -9,9 +9,11 @@ import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import axios from 'axios';
 import { send } from 'process';
-
+import { uuidV4 } from '@skyway-sdk/room';
+import P2p from './p2p-room/src/main';
+import { Modal } from 'antd';
+import Tutorial from './tutorial/src/Tutorial';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
-
 
 const items: MenuProps['items'] = [
   {
@@ -80,7 +82,7 @@ const bg2Style: React.CSSProperties = {
   backgroundPosition: 'left center', 
   zIndex: 10,
   width: '80px',
-  height: '80px',
+  height: '78px',
   position: 'fixed', 
   left: '30px',      
   top: '20px',
@@ -88,7 +90,7 @@ const bg2Style: React.CSSProperties = {
 
 const bg3Style = {
   display: 'flex',
-  height: '85vh',
+  height: '78vh',
   width: '28vw',
   justifyContent: 'center',
   alignItems: 'center',
@@ -106,10 +108,53 @@ const bg4Style: React.CSSProperties = {
   border: '1px solid #e1e1e1'
 };
 
+
+
 const Menu1: React.FC = () => {
     const navigate = useNavigate();
+    const [showP2p, setShowP2p] = useState(true);
+    const [isInWaitingList, setIsInWaitingList] = useState(false);
     const [current, setCurrent] = useState('mail');
+    const roomNameInputRef = useRef<HTMLInputElement>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [usernames, setUsernames] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
+    //test
+    useEffect(() => {
+      console.log("dad")
+      fetch('http://localhost:5000/getUsers')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // usernameだけを取り出して新しい配列に格納
+            const extractedUsernames = data.users.map((user: { username: any; }) => user.username);
+            
+            // usernames stateにセット
+            setUsernames(extractedUsernames);
+          } else {
+            setError(data.message || 'An error occurred');
+          }
+        })
+        .catch(err => setError(err.message))
+        .finally(() => setLoading(false));
+    }, []);
+
+    //test
+    const showModal = () => {
+      setIsModalOpen(true);
+    };
+  
+  
+    const handleCancel = () => {
+      setIsModalOpen(false);
+    };
     const onClick: MenuProps['onClick'] = (e) => {
       console.log('click ', e);
       setCurrent(e.key);
@@ -123,12 +168,16 @@ const Menu1: React.FC = () => {
     navigate('/friend');
   };
 
-  const userId = "uikdwdadu"
-    async function sendUserIdToBackend(userId: string) {
+  const userId = "kgfgfg99"
+
+  async function sendUserIdToBackend(userId: string) {
     try {
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
       if (response.data.success) {
         console.log('User added to waiting list');
+        
+        setIsInWaitingList(true); // ユーザーを待機リストに追加したらフラグをtrueにする
+
         // ユーザーが待機リストに追加されたら、マッチングをリクエスト
         requestMatching(userId);
       } else {
@@ -143,8 +192,9 @@ const Menu1: React.FC = () => {
     try {
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
       if (response.data.success) {
-        const matchedUserId = response.data.match;
-        console.log(`Matched with user: ${matchedUserId}`);
+        const roomName = response.data.roomName;  // サーバーから送られてくるランダムな部屋名
+        console.log(`Joining room: ${roomName}`);
+        joinRoom(roomName);
       } else {
         console.error('Matching error:', response.data.message);
       }
@@ -152,20 +202,67 @@ const Menu1: React.FC = () => {
       console.error('Error requesting matching:', error);
     }
   }
+
+  function joinRoom(roomName: string) {
+    if (roomNameInputRef.current) {
+      roomNameInputRef.current.value = roomName;  // inputに部屋名をセット
+    }
+  
+    const joinButton = document.getElementById('join'); 
+    if (joinButton) {
+      joinButton.click();  // ボタンのクリックイベントを強制的にトリガー
+    }
+  }
+  
   
   function connect() {
     sendUserIdToBackend(userId);
+    setIsModalOpen(false);
+  }
+  function generateRandomRoomName() {
+    return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
   }
 
+  useEffect(() => {
+    async function checkIfInWaitingList() {
+      try {
+        const response = await axios.get(`${API_ENDPOINT}/getWaitingUsers`);
+        if (response.data.success) {
+          const waitingUsers = response.data.users;
+          // ユーザーIDが待機リスト内にあるかどうかを確認
+          if (waitingUsers.includes(userId)) {
+            setIsInWaitingList(true);
+          } else {
+            setIsInWaitingList(false);
+          }
+        } else {
+          console.error('Error fetching waiting users:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error checking if user is in waiting list:', error);
+      }
+    }
+    checkIfInWaitingList();
+  }, []);
+
+
+  const room12 = "dadw"
+  Tutorial(room12);
+  
 
 
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
-    <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
+    <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
     <div style={bg3Style}></div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
-    <button onClick={connect}>Connect</button></div> 
+        <>
+      <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
+        <p>実際の映像が流れます。</p>
+      </Modal>
+    </>
+        { showP2p && <Tutorial /> }</div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}
 

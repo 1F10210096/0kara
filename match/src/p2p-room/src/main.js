@@ -8,13 +8,18 @@ import {
   uuidV4,
 } from '@skyway-sdk/room';
 import { appId, secret } from '../../p2p-room/src/env';
+import { useState } from 'react';
+function generateRandomRoomName() {
+  return `room_${uuidV4()}`;
+}
 
-function P2p() {
+export function P2p(room) {
   const localVideoRef = useRef(null);
   const buttonAreaRef = useRef(null);
   const remoteMediaAreaRef = useRef(null);
   const roomNameInputRef = useRef(null);
   const myIdRef = useRef(null);
+  const [roomName, setRoomName] = useState('');
   const token = new SkyWayAuthToken({
     jti: uuidV4(),
     iat: nowInSec(),
@@ -58,14 +63,17 @@ function P2p() {
       },
     },
   }).encode(secret);
+  useEffect(() => {
+    setRoomName(generateRandomRoomName());
+  }, []);
   async function setupSkyway() {
     try {
-        console.log('setupSkyway');
+        console.log('1');
 
         const { audio, video } = await SkyWayStreamFactory.createMicrophoneAudioAndCameraStream();
         video.attach(localVideoRef.current);
         await localVideoRef.current.play();
-        console.log('setupSkyway3');
+        console.log('2');
 
         // Use ref for joinButton instead of getElementById
         const joinButton = document.getElementById('join'); // You could convert this to useRef as well if you'd like.
@@ -76,7 +84,7 @@ function P2p() {
             const context = await SkyWayContext.Create(token);
             const room = await SkyWayRoom.FindOrCreate(context, {
                 type: 'p2p',
-                name: roomNameInputRef.current.value,
+                name:roomName,
             });
             const me = await room.join();
 
@@ -131,11 +139,12 @@ function P2p() {
 }
 
   useEffect(() => {
-    setupSkyway();
+    setupSkyway(room);
   }, []); 
 
   return (
     <div>
+      <input value={roomName} onChange={(e) => setRoomName(e.target.value)} ref={roomNameInputRef} type="text" />
       <p>ID: <span ref={myIdRef}></span></p>
       <div>
         room name: <input ref={roomNameInputRef} type="text" />
@@ -148,4 +157,7 @@ function P2p() {
   );
 }
 
+
+
 export default P2p;
+

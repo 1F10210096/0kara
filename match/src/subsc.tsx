@@ -1,296 +1,189 @@
-import React, { useState } from 'react';
-import type { CascaderProps } from 'antd';
-import {
-  AutoComplete,
-  Button,
-  Cascader,
-  Checkbox,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-} from 'antd';
-import { Link } from 'react-router-dom';
-
-const { Option } = Select;
-
-interface DataNodeType {
-  value: string;
-  label: string;
-  children?: DataNodeType[];
-}
-
-const residences: CascaderProps<DataNodeType>['options'] = [
-  {
-    value: 'zhejiang',
-    label: 'Zhejiang',
-    children: [
-      {
-        value: 'hangzhou',
-        label: 'Hangzhou',
-        children: [
-          {
-            value: 'xihu',
-            label: 'West Lake',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    value: 'jiangsu',
-    label: 'Jiangsu',
-    children: [
-      {
-        value: 'nanjing',
-        label: 'Nanjing',
-        children: [
-          {
-            value: 'zhonghuamen',
-            label: 'Zhong Hua Men',
-          },
-        ],
-      },
-    ],
-  },
-];
-
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
+import React, { useEffect, useRef } from 'react';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import {useNavigation} from 'react-router-dom';
+import backgroundImage from './back.jpg';
+import axios from 'axios';
+import './Home.css';
+import 'particles.js';
+const bgStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundImage: `url(${backgroundImage})`,
+  height: '100vh',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover'
 };
 
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
+const squareStyle = {
+  width: '500px',
+  height: '600px',
+  backgroundColor: 'white',
+  padding: '20px',
+  zIndex: 1 
 };
+const h1 = {
+  width: '700px',
+  height: '30px',
+  backgroundColor: 'white',
+  padding: '40px',
+};
+
+
 
 const Register: React.FC = () => {
-  const [form] = Form.useForm();
-
+  const navigate = useNavigate();
+  const particleRef = useRef<HTMLDivElement>(null);
+  const particlesRef = useRef<HTMLDivElement>(null);
   const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
+    axios.post('http://localhost:5000/subsc', values)  // URLを変更
+    .then(response => {
+      console.log(response.data);
+      if (response.data.success) {
+        navigate('/Menu');
+      } else {
+        console.error(response.data.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error logging in:", error);
+    });
   };
+  useEffect(() => {
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select style={{ width: 70 }}>
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
-
-  const suffixSelector = (
-    <Form.Item name="suffix" noStyle>
-      <Select style={{ width: 70 }}>
-        <Option value="USD">$</Option>
-        <Option value="CNY">¥</Option>
-      </Select>
-    </Form.Item>
-  );
-
-  const [autoCompleteResult, setAutoCompleteResult] = useState<string[]>([]);
-
-  const onWebsiteChange = (value: string) => {
-    if (!value) {
-      setAutoCompleteResult([]);
-    } else {
-      setAutoCompleteResult(['.com', '.org', '.net'].map((domain) => `${value}${domain}`));
+    if ((window as any).particlesJS) {
+        (window as any).particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 30,
+                    density: {
+                        enable: true,
+                        value_area: 1121.6780303333778
+                    }
+                },
+                color: {
+                    value: "#fff"
+                },
+                shape: {
+                    type: "image",
+                    stroke: {
+                        width: 0,
+                    },
+                    image: {
+                        src: "http://coco-factory.jp/ugokuweb/wp-content/themes/ugokuweb/data/move02/5-6/img/flower.png",
+                        width: 120,
+                        height: 120
+                    }
+                },
+                opacity: {
+                    value: 0.06409588744762158,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 8.011985930952697,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 4,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: false,
+                },
+                move: {
+                    enable: true,
+                    speed: 7,
+                    direction: "bottom-right",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 281.9177489524316,
+                        rotateY: 127.670995809726
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: false,
+                    },
+                    onclick: {
+                        enable: false,
+                    },
+                    resize: true
+                }
+            },
+            retina_detect: false
+        });
     }
-  };
-
-  const websiteOptions = autoCompleteResult.map((website) => ({
-    label: website,
-    value: website,
-  }));
-
+}, []);
+  
   return (
+    <div style={bgStyle}>
+          <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
+      <div id="particle" ref={particleRef}></div>;
+        <div style={squareStyle}>
+        <p className="fuchidori" style={{ fontSize: '30px' }}>アカウント作成</p>
     <Form
-      {...formItemLayout}
-      form={form}
-      name="register"
+      name="normal_login"
+      className="login-form"
+      initialValues={{ remember: true }}
       onFinish={onFinish}
-      initialValues={{ residence: ['zhejiang', 'hangzhou', 'xihu'], prefix: '86' }}
-      style={{ maxWidth: 600 }}
-      scrollToFirstError
     >
       <Form.Item
-        name="email"
-        label="E-mail"
-        rules={[
-          {
-            type: 'email',
-            message: 'The input is not valid E-mail!',
-          },
-          {
-            required: true,
-            message: 'Please input your E-mail!',
-          },
-        ]}
+        name="username"
+        rules={[{ required: true, message: 'Please input your Username!' }]}
       >
-        <Input />
+        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
       </Form.Item>
-
       <Form.Item
         name="password"
-        label="Password"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your password!',
-          },
-        ]}
-        hasFeedback
+        rules={[{ required: true, message: 'Please input your Password!' }]}
       >
-        <Input.Password />
+        <Input
+          prefix={<LockOutlined className="site-form-item-icon" />}
+          type="password"
+          placeholder="Password"
+        />
+      </Form.Item>
+      <Form.Item>
+        <Form.Item name="remember" valuePropName="checked" noStyle>
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
+
+        <a className="login-form-forgot" href="">
+          Forgot password
+        </a>
       </Form.Item>
 
-      <Form.Item
-        name="confirm"
-        label="Confirm Password"
-        dependencies={['password']}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: 'Please confirm your password!',
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue('password') === value) {
-                return Promise.resolve();
-              }
-              return Promise.reject(new Error('The new password that you entered do not match!'));
-            },
-          }),
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        name="nickname"
-        label="Nickname"
-        tooltip="What do you want others to call you?"
-        rules={[{ required: true, message: 'Please input your nickname!', whitespace: true }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="residence"
-        label="Habitual Residence"
-        rules={[
-          { type: 'array', required: true, message: 'Please select your habitual residence!' },
-        ]}
-      >
-        <Cascader options={residences} />
-      </Form.Item>
-
-      <Form.Item
-        name="phone"
-        label="Phone Number"
-        rules={[{ required: true, message: 'Please input your phone number!' }]}
-      >
-        <Input addonBefore={prefixSelector} style={{ width: '100%' }} />
-      </Form.Item>
-
-      <Form.Item
-        name="donation"
-        label="Donation"
-        rules={[{ required: true, message: 'Please input donation amount!' }]}
-      >
-        <InputNumber addonAfter={suffixSelector} style={{ width: '100%' }} />
-      </Form.Item>
-
-      <Form.Item
-        name="website"
-        label="Website"
-        rules={[{ required: true, message: 'Please input website!' }]}
-      >
-        <AutoComplete options={websiteOptions} onChange={onWebsiteChange} placeholder="website">
-          <Input />
-        </AutoComplete>
-      </Form.Item>
-
-      <Form.Item
-        name="intro"
-        label="Intro"
-        rules={[{ required: true, message: 'Please input Intro' }]}
-      >
-        <Input.TextArea showCount maxLength={100} />
-      </Form.Item>
-
-      <Form.Item
-        name="gender"
-        label="Gender"
-        rules={[{ required: true, message: 'Please select gender!' }]}
-      >
-        <Select placeholder="select your gender">
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item label="Captcha" extra="We must make sure that your are a human.">
-        <Row gutter={8}>
-          <Col span={12}>
-            <Form.Item
-              name="captcha"
-              noStyle
-              rules={[{ required: true, message: 'Please input the captcha you got!' }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Button>Get captcha</Button>
-          </Col>
-        </Row>
-      </Form.Item>
-
-      <Form.Item
-        name="agreement"
-        valuePropName="checked"
-        rules={[
-          {
-            validator: (_, value) =>
-              value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
-          },
-        ]}
-        {...tailFormItemLayout}
-      >
-        <Checkbox>
-          I have read the <a href="">agreement</a>
-        </Checkbox>
-      </Form.Item>
-      <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
-          Register
+      <Form.Item>
+        <Button type="primary" htmlType="submit" className="login-form-button">
+          Log in
         </Button>
+
       </Form.Item>
+      <Link to="/register">register now!</Link>
+      <br /> 
       <br /> 
       <Link to="/">back Home</Link>
     </Form>
-    
+
+    </div>
+    </div>
   );
 };
 
