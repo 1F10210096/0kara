@@ -25,8 +25,6 @@ const User = mongoose.model('User', {
   username: String,
   password: String
 });
-console.log("dwdw")
-
 // Enable CORS for all routes
 app.use(cors());
 try {
@@ -34,9 +32,7 @@ try {
 app.get('/getUsers', async (req, res) => {
   try {
     const users = await User.find();
-    console.log("dawdwd")
     console.log(users)
-    console.log("dawdwd")
     res.json({ success: true, users });
   } catch (err) {
     res.json({ success: false, message: 'Error fetching users!' });
@@ -119,7 +115,27 @@ app.get('/getWaitingUsers', async (req, res) => {
 });
 
 
+
 //マッチングロジック
+
+let clients = {};
+
+app.get('/events', (req, res) => {
+    const userId = req.query.userId;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // 新しいクライアントを追加
+    clients[userId] = res;
+
+    // クライアントが切断した場合、そのクライアントを削除する
+    req.on('close', () => {
+        delete clients[userId];
+    });
+});
+
 app.get('/matchUser/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -129,15 +145,26 @@ app.get('/matchUser/:userId', async (req, res) => {
       return res.json({ success: false, message: 'No users available for matching.' });
     }
 
-    const matchedUser = users[0];  // シンプルな例では、最初の待機ユーザーをマッチさせます。
-    console.log(matchedUser,"matchedUser")
+    const matchedUser = users[0];
+    console.log(matchedUser, "matchedUser")
+
+    // ランダムな数字を生成
+    const randomNum = Math.floor(Math.random() * 10000); // 0から9999までの整数
 
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
 
+    if (clients[matchedUser.userId]) {
+      clients[matchedUser.userId].write(`data: ${JSON.stringify({ randomNum })}\n\n`);
+  }
+  
+  if (clients[userId]) {
+      clients[userId].write(`data: ${JSON.stringify({ randomNum })}\n\n`);
+  }
+  
+  res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
 
-    res.json({ success: true, match: matchedUser.userId });
   } catch (err) {
     res.json({ success: false, message: 'Error matching user!' });
   }
