@@ -5,8 +5,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import {useNavigation} from 'react-router-dom';
 import backgroundImage from './back.jpg';
 import axios from 'axios';
+import './firebaseConfig'; 
 import './Home.css';
 import 'particles.js';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 const bgStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -38,20 +40,22 @@ const PageA: React.FC = () => {
   const particleRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
   const onFinish = (values: any) => {
-    axios.post('http://localhost:5000/page_a', values)
-    .then(response => {
-      console.log(response.data);
-      if (response.data.success) {
-        console.log("a")
-        navigate('/Menu');
-      } else {
-        // ログインが失敗した場合の処理をここに追加します。
-        console.error(response.data.message);
-      }
-    })
-    .catch(error => {
-      console.error("Error logging in:", error);
-    });
+    const { email, password } = values;
+    console.log("Email:", email, "Password:", password);
+    const auth = getAuth();
+  
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // ログイン成功
+        console.log("User signed in:", userCredential.user);
+        navigate('/menu');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Error logging in:", errorCode, errorMessage);
+        // ログインが失敗した場合の追加の処理をここに記述
+      });
   };
   useEffect(() => {
 
@@ -152,6 +156,16 @@ const PageA: React.FC = () => {
       >
         <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
       </Form.Item>
+      <Form.Item
+    name="email"  // Change "Email" to "email"
+    rules={[{ required: true, message: 'Please input your Email!' }]}
+>
+    <Input
+        prefix={<LockOutlined className="site-form-item-icon" />}
+        type='email'
+        placeholder='email'
+    />
+</Form.Item>
       <Form.Item
         name="password"
         rules={[{ required: true, message: 'Please input your Password!' }]}

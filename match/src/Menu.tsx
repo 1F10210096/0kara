@@ -13,6 +13,8 @@ import { uuidV4 } from '@skyway-sdk/room';
 import P2p from './p2p-room/src/main';
 import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { set } from 'mongoose';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -120,10 +122,24 @@ const Menu1: React.FC = () => {
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [user, setUserID] = useState('');
+
+    const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/auth.user
+    const uid = user.uid;
+    setUserID(uid);
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
     //test
     useEffect(() => {
-      console.log("dad")
       fetch('http://localhost:5000/getUsers')
         .then(response => {
           if (!response.ok) {
@@ -168,9 +184,9 @@ const Menu1: React.FC = () => {
     navigate('/friend');
   };
 
-  const userId = "kgfgfg99"
+  const userId = user
 
-  async function sendUserIdToBackend(userId: string) {
+  async function sendUserIdToBackend(user: string) {
     try {
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
       if (response.data.success) {
@@ -202,6 +218,7 @@ const Menu1: React.FC = () => {
       console.error('Error requesting matching:', error);
     }
   }
+  // ユーザ
 
   function joinRoom(roomName: string) {
     if (roomNameInputRef.current) {
@@ -244,10 +261,10 @@ const Menu1: React.FC = () => {
     }
     checkIfInWaitingList();
   }, []);
-
-
-  const room12 = "dadw"
-  Tutorial(room12);
+  
+  const room12 =  generateRandomRoomName();
+  // console.log(room12)
+  // Tutorial(room12);
   
 
 

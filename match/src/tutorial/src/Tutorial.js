@@ -6,11 +6,41 @@ import {
   SkyWayStreamFactory,
   uuidV4,
 } from '@skyway-sdk/room';
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { appId, secret } from '../../p2p-room/src/env';
 import { useEffect } from 'react';
 import './index.css';
-function Tutorial(room12) {
+import axios from 'axios';
+
+
+
+const auth = getAuth();
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in
+    const userId = user.uid;
+
+    const eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
+
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('Received random number:', data.randomNum);
+
+    };
+
+    eventSource.onerror = function(error) {
+        console.error('EventSource failed:', error);
+        eventSource.close();
+    };
+
+  } else {
+    // User is signed out
+    // ...
+  }
+});
+
+function Tutorial() {
 
 const token = new SkyWayAuthToken({
   jti: uuidV4(),
@@ -58,78 +88,85 @@ const token = new SkyWayAuthToken({
 
 async function setupSkyway(room12) {
   try {
-  console.log('setupSkyway');
-  const localVideo = document.getElementById('local-video');
-  const buttonArea = document.getElementById('button-area');
-  const remoteMediaArea = document.getElementById('remote-media-area');
-  const roomNameInput = document.getElementById('room-name');
+    console.log('setupSkyway');
+    const localVideo = document.getElementById('local-video');
+    const buttonArea = document.getElementById('button-area');
+    const remoteMediaArea = document.getElementById('remote-media-area');
+    const roomNameInput = document.getElementById('room-name');
 
-  const myId = document.getElementById('my-id');
-  const joinButton = document.getElementById('join');
-console.log('setupSkyway2');
-  const { audio, video } =
-    await SkyWayStreamFactory.createMicrophoneAudioAndCameraStream();
-  video.attach(localVideo);
-  await localVideo.play();
-console.log('setupSkyway3');
-  joinButton.onclick = async () => {
-    if (roomNameInput.value === '') return;
+    const myId = document.getElementById('my-id');
+    const joinButton = document.getElementById('join');
+    console.log('setupSkyway2');
+    const { audio, video } =
+      await SkyWayStreamFactory.createMicrophoneAudioAndCameraStream();
+    video.attach(localVideo);
+    await localVideo.play();
+    console.log('setupSkyway3');
 
-    const context = await SkyWayContext.Create(token);
-    console.log(roomNameInput.value)
+    // Set the room name input value to room12
     roomNameInput.value = room12;
-    const room = await SkyWayRoom.FindOrCreate(context, {
-      type: 'p2p',
-      name: roomNameInput.value,
-    });
-    const me = await room.join();
 
-    myId.textContent = me.id;
+    // Call the join function right after setting the value.
+    await joinFunction(roomNameInput, audio, video, myId, buttonArea, remoteMediaArea);
 
-    await me.publish(audio);
-    await me.publish(video);
-
-    const subscribeAndAttach = (publication) => {
-      if (publication.publisher.id === me.id) return;
-
-      const subscribeButton = document.createElement('button');
-      subscribeButton.textContent = `${publication.publisher.id}: ${publication.contentType}`;
-      buttonArea.appendChild(subscribeButton);
-
-      subscribeButton.onclick = async () => {
-        const { stream } = await me.subscribe(publication.id);
-
-        let newMedia;
-        switch (stream.track.kind) {
-          case 'video':
-            newMedia = document.createElement('video');
-            newMedia.playsInline = true;
-            newMedia.autoplay = true;
-            break;
-          case 'audio':
-            newMedia = document.createElement('audio');
-            newMedia.controls = true;
-            newMedia.autoplay = true;
-            break;
-          default:
-            return;
-        }
-
-        stream.attach(newMedia);
-        remoteMediaArea.appendChild(newMedia);
-      };
-    };
-
-    room.publications.forEach(subscribeAndAttach);
-    room.onStreamPublished.add((e) => subscribeAndAttach(e.publication));
-  };
-} catch (error) {
-  console.error("An error occurred:", error.message);
-}
+  } catch (error) {
+    console.error("An error occurred:", error.message);
+  }
 };
-useEffect(() => {
-  setupSkyway(room12);
-}, []); 
+
+const joinFunction = async (roomNameInput, audio, video, myId, buttonArea, remoteMediaArea) => {
+  if (roomNameInput.value === '') return;
+
+  const context = await SkyWayContext.Create(token);
+  console.log(roomNameInput.value);
+
+  const room = await SkyWayRoom.FindOrCreate(context, {
+    type: 'p2p',
+    name: roomNameInput.value,
+  });
+  const me = await room.join();
+
+  myId.textContent = me.id;
+
+  await me.publish(audio);
+  await me.publish(video);
+
+  const subscribeAndAttach = (publication) => {
+    if (publication.publisher.id === me.id) return;
+
+    const subscribeButton = document.createElement('button');
+    subscribeButton.textContent = `${publication.publisher.id}: ${publication.contentType}`;
+    buttonArea.appendChild(subscribeButton);
+
+    subscribeButton.onclick = async () => {
+      const { stream } = await me.subscribe(publication.id);
+
+      let newMedia;
+      switch (stream.track.kind) {
+        case 'video':
+          newMedia = document.createElement('video');
+          newMedia.playsInline = true;
+          newMedia.autoplay = true;
+          break;
+        case 'audio':
+          newMedia = document.createElement('audio');
+          newMedia.controls = true;
+          newMedia.autoplay = true;
+          break;
+        default:
+          return;
+      }
+
+      stream.attach(newMedia);
+      remoteMediaArea.appendChild(newMedia);
+    };
+  };
+
+  room.publications.forEach(subscribeAndAttach);
+  room.onStreamPublished.add((e) => subscribeAndAttach(e.publication));
+};
+  // setupSkyway(room12);
+
 return (
   <div>
     <p>ID: <span id="my-id"></span></p>
