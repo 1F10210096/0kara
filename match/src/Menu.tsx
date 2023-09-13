@@ -234,7 +234,7 @@ onAuthStateChanged(auth, (user) => {
   
   function connect() {
     sendUserIdToBackend(userId);
-    setIsModalOpen(false);
+    // setIsModalOpen(false);
   }
   function generateRandomRoomName() {
     return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
@@ -275,9 +275,10 @@ onAuthStateChanged(auth, (user) => {
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>
-      <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
+      {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
-      </Modal>
+      </Modal> */}
+      <div onClick={connect}>fuji</div>
     </>
         { showP2p && <Tutorial /> }</div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
