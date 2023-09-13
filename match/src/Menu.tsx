@@ -17,6 +17,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { set } from 'mongoose';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
+
 const items: MenuProps['items'] = [
   {
     label: 'いいねされた人',
@@ -118,25 +119,54 @@ const Menu1: React.FC = () => {
     const [isInWaitingList, setIsInWaitingList] = useState(false);
     const [current, setCurrent] = useState('mail');
     const roomNameInputRef = useRef<HTMLInputElement>(null);
-    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [user, setUserID] = useState('');
 
     const auth = getAuth();
+
+    const eventSource = new EventSource(`http://localhost:5000/events?userId=${user}`);
+
+// メッセージイベントリスナーを追加して、サーバからのデータをリッスンします
+eventSource.addEventListener('message', function(event) {
+    // event.dataにはサーバから送られたJSONデータが含まれます
+    const data = JSON.parse(event.data);
+    console.log('Received event:', data.event);
+    
+    console.log('Matched With:', data.matchedWith);
+    console.log('Random Number:', data.randomNum);
+    
+    // ここで他の処理やUIの更新を行うことができます
+});
+
+// エラーハンドリングも可能です
+eventSource.onerror = function(event) {
+    console.error('EventSource failed:', event);
+    eventSource.close();
+};
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    console.log(user);
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.uid;
-    setUserID(uid);
+    const uid = user.email;
+    console.log(uid);
+    if (uid !== null) {
+      setUserID(uid);
+  } else {
+      // 必要に応じて何らかのデフォルト値またはエラーハンドリングを行う
+      setUserID("defaultID"); // 例としてのデフォルト値
+  }
     // ...
   } else {
     // User is signed out
     // ...
   }
 });
+console.log(user);
 
     //test
     useEffect(() => {
@@ -187,8 +217,12 @@ onAuthStateChanged(auth, (user) => {
   const userId = user
 
   async function sendUserIdToBackend(user: string) {
+    console.log("Daw")
     try {
+      console.log(userId,"send")
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
+      console.log("dawddd")
+      console.log(response);
       if (response.data.success) {
         console.log('User added to waiting list');
         
@@ -206,6 +240,7 @@ onAuthStateChanged(auth, (user) => {
   
   async function requestMatching(userId: string) {
     try {
+      console.log(userId,"match");
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
       if (response.data.success) {
         const roomName = response.data.roomName;  // サーバーから送られてくるランダムな部屋名
@@ -235,6 +270,7 @@ onAuthStateChanged(auth, (user) => {
   function connect() {
     sendUserIdToBackend(userId);
     setIsModalOpen(false);
+    console.log('connect');
   }
   function generateRandomRoomName() {
     return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
@@ -262,9 +298,8 @@ onAuthStateChanged(auth, (user) => {
     checkIfInWaitingList();
   }, []);
   
-  const room12 =  generateRandomRoomName();
-  // console.log(room12)
-  // Tutorial(room12);
+
+  Tutorial();
   
 
 
@@ -275,9 +310,10 @@ onAuthStateChanged(auth, (user) => {
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>
-      <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
+      {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
-      </Modal>
+      </Modal> */}
+      <div onClick={connect}>connect</div>
     </>
         { showP2p && <Tutorial /> }</div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
