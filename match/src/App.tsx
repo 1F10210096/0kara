@@ -6,7 +6,7 @@ import Register from "./subsc";
 import Menu1 from "./Menu";
 import RandomMatch from "./randomMatch";
 import Dm from "./dm";
-import Friend from "./friend";
+import Friend from "./friend.js";
 import Tutorial from "./tutorial/src/Tutorial";
 import P2p from "./p2p-room/src/main";
 function App() {
