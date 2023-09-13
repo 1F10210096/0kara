@@ -265,7 +265,21 @@ onAuthStateChanged(auth, (user) => {
   const room12 =  generateRandomRoomName();
   // console.log(room12)
   // Tutorial(room12);
-  
+//   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
+//   eventSource.onmessage = function(event) {
+//     const data = JSON.parse(event.data);
+    
+//     const roomNumber = data.roomNumber;
+//     const matchedUserId = data.matchedUserId;
+
+//     console.log(`マッチした部屋番号: ${roomNumber}`);
+//     console.log(`マッチしたユーザーID: ${matchedUserId}`);
+    
+//     // 必要に応じてDOMの更新や他の処理をここに追加
+// };eventSource.onerror = function(event) {
+//   console.error('エラーが発生しました:', event);
+//   eventSource.close();
+// };
 
 
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
