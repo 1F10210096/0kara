@@ -15,6 +15,7 @@ import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { set } from 'mongoose';
+import './card.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -285,7 +286,11 @@ onAuthStateChanged(auth, (user) => {
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}></div>
+    <div style={bg3Style}><div className="card">
+    Magic Card
+</div>
+
+    <a href="https://mythrillfiction.com/" target="_blank">Mythrill</a></div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>
