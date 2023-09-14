@@ -12,14 +12,13 @@ import { useEffect } from 'react';
 import './index.css';
 import axios from 'axios';
 
+import { useState} from 'react';
+
+
+
 const auth = getAuth();
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in
-    const userId = user.uid;
 
-    const eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
 
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
@@ -27,11 +26,36 @@ onAuthStateChanged(auth, (user) => {
         const roomNameInput = document.getElementById('room-name');
             roomNameInput.value = data.randomNum.toString(); // 数値の場合、文字列に変換
 
-    };
 
-    eventSource.onerror = function(error) {
-        console.error('EventSource failed:', error);
+function Tutorial(room12) {
+  const [roomName, setRoomName] = useState('');
+
+  useEffect(() => {
+    let eventSource;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userId = user.uid;
+        eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
+        eventSource.onmessage = function(event) {
+          const data = JSON.parse(event.data);
+          console.log('Received data:', data);
+      
+          if (data && data.roomNumber !== undefined) {
+              console.log('Received room number:', data.roomNumber);
+              setRoomName(data.roomNumber.toString());
+          } else {
+              console.error('roomNumber is missing in the received data');
+          }
+      };
+      }
+    });
+
+    // Cleanup
+    return () => {
+      if (eventSource) {
         eventSource.close();
+
     };
 
   } else {
@@ -41,6 +65,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 function Tutorial(room12) {
+
 
   const token = new SkyWayAuthToken({
     jti: uuidV4(),
@@ -106,8 +131,8 @@ function Tutorial(room12) {
   
       const context = await SkyWayContext.Create(token);
       console.log(roomNameInput.value)
-      roomNameInput.value = room12;
-      console.log(roomNameInput.value)
+      roomNameInput.value = roomName
+
       const room = await SkyWayRoom.FindOrCreate(context, {
         type: 'p2p',
         name: roomNameInput.value,

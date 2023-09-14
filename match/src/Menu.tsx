@@ -15,6 +15,7 @@ import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { set } from 'mongoose';
+import './card.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 
@@ -269,8 +270,9 @@ console.log(user);
   
   function connect() {
     sendUserIdToBackend(userId);
-    setIsModalOpen(false);
-    console.log('connect');
+
+    // setIsModalOpen(false);
+
   }
   function generateRandomRoomName() {
     return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
@@ -299,21 +301,48 @@ console.log(user);
   }, []);
   
 
+  const room12 =  generateRandomRoomName();
+  // console.log(room12)
+  // Tutorial(room12);
+//   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
+//   eventSource.onmessage = function(event) {
+//     const data = JSON.parse(event.data);
+    
+//     const roomNumber = data.roomNumber;
+//     const matchedUserId = data.matchedUserId;
+
+//     console.log(`マッチした部屋番号: ${roomNumber}`);
+//     console.log(`マッチしたユーザーID: ${matchedUserId}`);
+    
+//     // 必要に応じてDOMの更新や他の処理をここに追加
+// };eventSource.onerror = function(event) {
+//   console.error('エラーが発生しました:', event);
+//   eventSource.close();
+// };
+
+
   Tutorial();
   
+
 
 
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}></div>
+    <div style={bg3Style}><div className="card">
+    Magic Card
+</div>
+
+    <a href="https://mythrillfiction.com/" target="_blank">Mythrill</a></div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>
       {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
       </Modal> */}
-      <div onClick={connect}>connect</div>
+
+      <div onClick={connect}>fuji</div>
+
     </>
         { showP2p && <Tutorial /> }</div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>

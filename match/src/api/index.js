@@ -158,13 +158,27 @@ app.get('/matchUser/:userId', async (req, res) => {
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
 
-    if (clients[matchedUser.userId]) {
-      clients[matchedUser.userId].write(`data: ${JSON.stringify({ matchedWith: userId, randomNum })}\n\n`);
-    }
 
-    if (clients[userId]) {
-      clients[userId].write(`data: ${JSON.stringify({ matchedWith: matchedUser.userId, randomNum })}\n\n`);
-    }
+// クライアントにデータを送信する関数
+const sendData = (client, randomNum, matchedUserId) => {
+  const data = {
+      roomNumber: randomNum,
+      matchedUserId: matchedUserId
+  };
+  client.write(`data: ${JSON.stringify(data)}\n\n`);
+};
+
+if (clients[matchedUser.userId]) {
+  // matchedUserにはuserIdのユーザーがマッチしたという情報を送信
+  sendData(clients[matchedUser.userId], randomNum, userId);
+}
+
+if (clients[userId]) {
+  // userIdのユーザーにはmatchedUser.userIdとマッチしたという情報を送信
+  sendData(clients[userId], randomNum, matchedUser.userId);
+}
+  
+
   res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
 
   } catch (err) {
