@@ -286,11 +286,10 @@ onAuthStateChanged(auth, (user) => {
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}><div className="card">
-    Magic Card
+    <div style={bg3Style}><div className="magic-button-container">
+    <button className="magic-button">Button</button>
 </div>
-
-    <a href="https://mythrillfiction.com/" target="_blank">Mythrill</a></div>
+</div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>

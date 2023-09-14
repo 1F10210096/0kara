@@ -1,3 +1,4 @@
+.magic-button {
 @property --rotate {
     syntax: "<angle>";
     initial-value: 132deg;
@@ -100,3 +101,8 @@
     font-weight: bold;
     margin-top: 2rem;
   }
+}
+
+.magic-button-container .magic-button {
+    /* スタイル */
+}
