@@ -286,8 +286,12 @@ onAuthStateChanged(auth, (user) => {
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}><div className="magic-button-container">
-    <button className="magic-button">Button</button>
+    <div style={bg3Style}><div style={bg3Style}>
+    <div className="magic-button">
+        <div className="card">
+            Magic Card
+        </div>
+    </div>
 </div>
 </div>
     <div style={bg4Style}>
