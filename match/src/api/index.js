@@ -4,7 +4,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
-
+app.use(express.json());
 // MongoDBへの接続設定
 const MONGO_URI = 'mongodb+srv://koki:koki1218@atlascluster.xopoj3o.mongodb.net/'; // あなたのMongoDB URIに置き換えてください
 mongoose.connect(MONGO_URI, {
@@ -85,7 +85,9 @@ const WaitingUserSchema = new mongoose.Schema({
 
 //待機リストにユーザーを追加するエンドポイント:
 app.post('/waiting', async (req, res) => {
+  console.log("waiting")
   const { userId } = req.body;
+  console.log(userId, "userId")
 
   // userIdが提供されていない、またはすでに待機リストに存在する場合はエラーを返す
   const exists = await WaitingUser.findOne({ userId });
@@ -151,9 +153,11 @@ app.get('/matchUser/:userId', async (req, res) => {
     // ランダムな数字を生成
     const randomNum = Math.floor(Math.random() * 10000); // 0から9999までの整数
 
+    console.log(matchedUser.userId, "matchedUser.userId")
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
+
 
 // クライアントにデータを送信する関数
 const sendData = (client, randomNum, matchedUserId) => {
@@ -174,6 +178,7 @@ if (clients[userId]) {
   sendData(clients[userId], randomNum, matchedUser.userId);
 }
   
+
   res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
 
   } catch (err) {
