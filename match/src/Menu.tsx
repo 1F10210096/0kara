@@ -16,6 +16,7 @@ import Tutorial from './tutorial/src/Tutorial';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { set } from 'mongoose';
 import './card.css';
+import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -185,6 +186,24 @@ onAuthStateChanged(auth, (user) => {
     navigate('/friend');
   };
 
+  const [open1, setOpen1] = useState(false);
+
+  const showModal1 = () => {
+    setOpen1(true);
+  };
+
+  const handleOk1 = (e: React.MouseEvent<HTMLElement>) => {
+    console.log(e);
+    setOpen1(false);
+  };
+
+  const handleCancel1 = (e: React.MouseEvent<HTMLElement>) => {
+    console.log(e);
+    setOpen1(false);
+  };
+
+  
+
   const userId = user
 
   async function sendUserIdToBackend(user: string) {
@@ -283,7 +302,33 @@ onAuthStateChanged(auth, (user) => {
 // };
 
 
-  return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
+  return ( <><div style={bgStyle} onClick={showModal1}>
+       <div className="container">
+     <section className="containerInner">
+       <h2 className="header">Modal title</h2>
+       <button
+         type="button"
+         aria-label="閉じる"
+         className="iconClose"
+       >
+       </button>
+       <p className="contents">
+        a
+       </p>
+       <div className="buttonContainer">
+         <button
+           type="button"
+           className="button closeButton"
+         >
+           close
+         </button>
+         <button type="button" className="button nextButton">
+           Secondary Action
+         </button>
+       </div>
+     </section>
+   </div>
+  </div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
     <div style={bg3Style}><div style={bg3Style}>
