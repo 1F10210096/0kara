@@ -20,19 +20,35 @@ const auth = getAuth();
 
 function Tutorial(room12) {
   const [roomName, setRoomName] = useState('');
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const userId = user.uid;
-      const eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
-      eventSource.onmessage = function(event) {
-          const data = JSON.parse(event.data);
-          console.log('Received random number:', data.randomNum);
-          setRoomName(data.randomNum.toString()); // Step 3: randomNumをroomNameにセット
-      };
-      // ...
-    }
-  });
 
+  useEffect(() => {
+    let eventSource;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userId = user.uid;
+        eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
+        eventSource.onmessage = function(event) {
+          const data = JSON.parse(event.data);
+          console.log('Received data:', data);
+      
+          if (data && data.roomNumber !== undefined) {
+              console.log('Received room number:', data.roomNumber);
+              setRoomName(data.roomNumber.toString());
+          } else {
+              console.error('roomNumber is missing in the received data');
+          }
+      };
+      }
+    });
+
+    // Cleanup
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    }
+  }, []); 
   const token = new SkyWayAuthToken({
     jti: uuidV4(),
     iat: nowInSec(),
@@ -96,7 +112,7 @@ function Tutorial(room12) {
   
       const context = await SkyWayContext.Create(token);
       console.log(roomNameInput.value)
-      roomNameInput.value = roomName;
+      roomNameInput.value = roomName
       const room = await SkyWayRoom.FindOrCreate(context, {
         type: 'p2p',
         name: roomNameInput.value,
