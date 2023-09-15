@@ -150,14 +150,17 @@ app.get('/events', (req, res) => {
 
 app.get('/matchUser/:userId', async (req, res) => {
   try {
+    // 必要なヘッダーの設定
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+
     const { userId } = req.params;
     const users = await WaitingUser.find({ userId: { $ne: userId } });
 
     if (!users.length) {
-      return res.json({ success: false, message: 'No users available for matching.' });
+      res.write(`data: ${JSON.stringify({ success: false, message: 'No users available for matching.' })}\n\n`);
+      return res.end();
     }
 
     const matchedUser = users[0];
@@ -165,49 +168,36 @@ app.get('/matchUser/:userId', async (req, res) => {
 
     // ランダムな数字を生成
     const randomNum = Math.floor(Math.random() * 10000); // 0から9999までの整数
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-       // クライアントにデータを送信する関数
-       const sendData = (client, randomNum, matchedUserId) => {
-        const data = {
-          roomNumber: randomNum,
-          matchedUserId: matchedUserId
-        };
-        console.log("Sending data:", data);
-        client.write(`data: ${JSON.stringify(data)}\n\n`);
+    
+    // クライアントにデータを送信する関数
+    const sendData = (client, randomNum, matchedUserId) => {
+      const data = {
+        roomNumber: randomNum,
+        matchedUserId: matchedUserId
       };
-  
-      if (clients[matchedUser.userId]) {
-        // matchedUserにはuserIdのユーザーがマッチしたという情報を送信
-        sendData(clients[matchedUser.userId], randomNum, userId);
-      }
-  
-      if (clients[userId]) {
-        // userIdのユーザーにはmatchedUser.userIdとマッチしたという情報を送信
-        sendData(clients[userId], randomNum, matchedUser.userId);
-      }
-  
+      console.log("Sending data:", data);
+      client.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    if (clients[matchedUser.userId]) {
+      sendData(clients[matchedUser.userId], randomNum, userId);
+    }
+
+    if (clients[userId]) {
+      sendData(clients[userId], randomNum, matchedUser.userId);
+    }
 
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
 
-
-if (clients[matchedUser.userId]) {
-  // matchedUserにはuserIdのユーザーがマッチしたという情報を送信
-  sendData(clients[matchedUser.userId], randomNum, userId);
-}
-
-if (clients[userId]) {
-  // userIdのユーザーにはmatchedUser.userIdとマッチしたという情報を送信
-  sendData(clients[userId], randomNum, matchedUser.userId);
-}
-  
-  res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
+    res.write(`data: ${JSON.stringify({ success: true, match: matchedUser.userId, randomNum: randomNum })}\n\n`);
+    return res.end();
 
   } catch (err) {
-    res.json({ success: false, message: 'Error matching user!' });
+    console.error(err);
+    res.write(`data: ${JSON.stringify({ success: false, message: 'Error matching user!' })}\n\n`);
+    return res.end();
   }
 });
 
