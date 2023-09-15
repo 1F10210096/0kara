@@ -13,9 +13,13 @@ import { uuidV4 } from '@skyway-sdk/room';
 import P2p from './p2p-room/src/main';
 import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
+
+import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import ReactplosiveModal from "reactplosive-modal";
 import { set } from 'mongoose';
-import './card.css';
+// import './card.css';
+// import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 
@@ -71,7 +75,7 @@ const items: MenuProps['items'] = [
 
 const bgStyle = {
   display: 'flex',
-  height: '13vh',
+  height: '16vh',
   width: '28vw',
   justifyContent: 'center',
   alignItems: 'center',
@@ -107,7 +111,7 @@ const bg4Style: React.CSSProperties = {
   width: '70vw',
   position: 'absolute',
   top: '1px',
-  left: '540px',
+  left: '430px',
   backgroundSize: 'cover',
   border: '1px solid #e1e1e1'
 };
@@ -215,6 +219,26 @@ console.log(user);
     navigate('/friend');
   };
 
+  const [open1, setOpen1] = useState(false);
+
+  const showModal1 = () => {
+    // setIsModalVisible(tr);
+  };
+
+  const handleOk1 = (e: React.MouseEvent<HTMLElement>) => {
+    console.log(e);
+    setOpen1(false);
+  };
+
+  const handleCancel1 = (e: React.MouseEvent<HTMLElement>) => {
+    console.log(e);
+    setOpen1(false);
+  };
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  
+
   const userId = user
 
   async function sendUserIdToBackend(user: string) {
@@ -321,6 +345,7 @@ console.log(user);
 // };
 
 
+
   Tutorial();
   
 
@@ -329,11 +354,14 @@ console.log(user);
   return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}><div className="card">
-    Magic Card
+    <div style={bg3Style}><div style={bg3Style}>
+    <div className="magic-button">
+        <div className="card">
+            Magic Card
+        </div>
+    </div>
 </div>
-
-    <a href="https://mythrillfiction.com/" target="_blank">Mythrill</a></div>
+</div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
         <>
@@ -342,6 +370,15 @@ console.log(user);
       </Modal> */}
 
       <div onClick={connect}>fuji</div>
+
+      <ReactplosiveModal
+      title={<h4>Title</h4>}
+      isVisible={isModalVisible}
+      onClose={() => setIsModalVisible(false)}
+    >
+      <p> Lorem ipsum dolor sit amet.</p>
+      <button>I do nothing.</button>
+    </ReactplosiveModal>
 
     </>
         { showP2p && <Tutorial /> }</div> 

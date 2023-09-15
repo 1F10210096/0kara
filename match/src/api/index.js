@@ -2,7 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const admin = require('firebase-admin');
 
+const serviceAccount = require('src/api/kara-3091d-firebase-adminsdk-p1jt0-f3caa905cf.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 const app = express();
 app.use(express.json());
 // MongoDBへの接続設定
@@ -25,6 +31,19 @@ const User = mongoose.model('User', {
   username: String,
   password: String
 });
+
+const ProfileSchema = new mongoose.Schema({
+  userId: String,
+  nickname: String,
+  gender: String,
+  age: String, // もし年齢が数値として保存される場合は 'Number' に変更してください
+  comment: String,
+  photo: String // これは写真のURLやパスを保存する文字列として考えられます。もし実際にバイナリデータとして画像を保存する場合は、適切な方法を検討する必要があります。
+});
+
+
+const Profile = mongoose.model('Profile', ProfileSchema);
+
 // Enable CORS for all routes
 app.use(cors());
 try {
@@ -186,6 +205,24 @@ if (clients[userId]) {
   }
 });
 
+try {
+  app.post('/api/profile', async (req, res) => {
+    const profileData = req.body;
+    
+    // データベースに保存
+    const profile = new Profile(profileData);
+    try {
+      await profile.save();
+      res.json({ success: true, message: 'Profile data saved successfully!' });
+    } catch (err) {
+      console.error("Error saving profile data:", err);
+      res.status(500).json({ success: false, message: 'Error saving profile data!' });
+    }
+  });
+} catch (err) {
+  console.log(err);
+}
+
 const WaitingUser = mongoose.model('WaitingUser', WaitingUserSchema);
 
 const PORT = 5000;
@@ -196,3 +233,18 @@ app.listen(PORT, () => {
   console.log(err);
 }
 
+
+const checkFirebaseToken = async (req, res, next) => {
+  const headerToken = req.headers.authorization;
+  if (!headerToken) {
+    return res.status(401).send({ message: 'No token, authorization denied' });
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(headerToken);
+    req.user = decodedToken;
+    next();
+  } catch (err) {
+    res.status(401).send({ message: 'Invalid token, authorization denied' });
+  }
+};

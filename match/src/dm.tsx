@@ -1,84 +1,140 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
-import type { MenuProps, MenuTheme } from 'antd';
-import { Menu, Switch } from 'antd';
 
-type MenuItem = Required<MenuProps>['items'][number];
+import React, { useState } from 'react';
+import {
+  Button,
+  Cascader,
+  Checkbox,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Radio,
+  Select,
+  Slider,
+  Switch,
+  TreeSelect,
+  Upload,
+} from 'antd';
+import { Link } from 'react-router-dom';
+import { PlusOutlined,SendOutlined } from '@ant-design/icons'
 
-function getItem(
-  label: React.ReactNode,
-  key?: React.Key | null,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-  type?: 'group',
-): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  } as MenuItem;
-}
+const { RangePicker } = DatePicker;
+const { TextArea } = Input;
 
-const items: MenuItem[] = [
-  getItem('Navigation One', 'sub1', <MailOutlined />, [
-    getItem('Option 1', '1'),
-    getItem('Option 2', '2'),
-    getItem('Option 3', '3'),
-    getItem('Option 4', '4'),
-  ]),
+const normFile = (e: any) => {
+  if (Array.isArray(e)) {
+    return e;
+  }
+  return e?.fileList;
+};
 
-  getItem('Navigation Two', 'sub2', <AppstoreOutlined />, [
-    getItem('Option 5', '5'),
-    getItem('Option 6', '6'),
-    getItem('Submenu', 'sub3', null, [getItem('Option 7', '7'), getItem('Option 8', '8')]),
-  ]),
+export default function Myprofile() {
+  const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
+  const [formData, setFormData] = useState({
+    nickname: "",
+    gender: "",
+    age: "",
+    comment: "",
+    photo: null // 画像アップロードの場合は適切に管理する必要があります
+  });
 
-  getItem('Navigation Three', 'sub4', <SettingOutlined />, [
-    getItem('Option 9', '9'),
-    getItem('Option 10', '10'),
-    getItem('Option 11', '11'),
-    getItem('Option 12', '12'),
-  ]),
-];
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
+      // レスポンスをチェック
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
 
-export default function Dm() {
-  const [theme, setTheme] = useState<MenuTheme>('dark');
-  const [current, setCurrent] = useState('1');
-
-  const changeTheme = (value: boolean) => {
-    setTheme(value ? 'dark' : 'light');
+      const result = await response.json();
+      console.log(result);
+      // ここで必要に応じて処理を追加（例: レスポンスに基づくメッセージの表示）
+    } catch (error) {
+      console.error("There was an error sending the data:", error);
+    }
   };
 
-  const onClick: MenuProps['onClick'] = (e) => {
-    console.log('click ', e);
-    setCurrent(e.key);
-  };
+
   return (
-    <div>
-<>
-      <Switch
-        checked={theme === 'dark'}
-        onChange={changeTheme}
-        checkedChildren="Dark"
-        unCheckedChildren="Light"
-      />
-      <br />
-      <br />
-      <Menu
-        theme={theme}
-        onClick={onClick}
-        style={{ width: 256 }}
-        defaultOpenKeys={['sub1']}
-        selectedKeys={[current]}
-        mode="inline"
-        items={items}
-      />
-    </>
-      
+    <div style={{ backgroundColor: "pink", height: "100vh", display: "flex", justifyContent: "center" }}>
+      <div style={{ marginTop: "80px", marginBottom: "80px", backgroundColor: "white", padding: "20px", borderRadius: "10px", width: "500px", display: 'inline-block' }}>
+        <div style={{ textAlign: "center", fontSize: "30px", fontWeight: "bold", marginBottom: "10px" }}>プロフィール入力欄</div>
+        <Form
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 14 }}
+          layout="horizontal"
+          style={{ maxWidth: 600 }}
+        >
+          <Form.Item label="ニックネーム" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
+            <Input
+              value={formData.nickname}
+              onChange={e => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
+            />
+          </Form.Item>
+
+          <Form.Item label="性別">
+            <Radio.Group
+              value={formData.gender}
+              onChange={e => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+            >
+              <Radio value="男">男</Radio>
+              <Radio value="女">女</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item label="年齢">
+            <Select
+              value={formData.age}
+              onChange={value => setFormData(prev => ({ ...prev, age: value }))}
+            >
+          <Select.Option value="20-25">20~25</Select.Option>
+          <Select.Option value="26-30">26~30</Select.Option>
+          <Select.Option value="31-35">31~35</Select.Option>
+          <Select.Option value="36-40">36~40</Select.Option>
+          <Select.Option value="41-45">41~45</Select.Option>
+          <Select.Option value="46-50">46~50</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="ひと言">
+            <TextArea
+              rows={4}
+              value={formData.comment}
+              onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
+            />
+          </Form.Item>
+
+          <Form.Item label="写真" valuePropName="fileList" getValueFromEvent={normFile}>
+            <Upload
+              action="/upload.do"
+              listType="picture-card"
+              // fileList={formData.photo}
+              // onChange={info => setFormData(prev => ({ ...prev, photo: info.fileList }))}
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            </Upload>
+          </Form.Item>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+ <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit}>
+          Send
+        </Button>
+            <Link to="/Menu">
+              戻る
+            </Link>
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }
