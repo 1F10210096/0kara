@@ -13,10 +13,13 @@ import { uuidV4 } from '@skyway-sdk/room';
 import P2p from './p2p-room/src/main';
 import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
+
+import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import ReactplosiveModal from "reactplosive-modal";
 import { set } from 'mongoose';
-import './card.css';
-import './a.css';
+// import './card.css';
+// import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -71,7 +74,7 @@ const items: MenuProps['items'] = [
 
 const bgStyle = {
   display: 'flex',
-  height: '13vh',
+  height: '16vh',
   width: '28vw',
   justifyContent: 'center',
   alignItems: 'center',
@@ -107,7 +110,7 @@ const bg4Style: React.CSSProperties = {
   width: '70vw',
   position: 'absolute',
   top: '1px',
-  left: '540px',
+  left: '430px',
   backgroundSize: 'cover',
   border: '1px solid #e1e1e1'
 };
@@ -189,7 +192,7 @@ onAuthStateChanged(auth, (user) => {
   const [open1, setOpen1] = useState(false);
 
   const showModal1 = () => {
-    setOpen1(true);
+    // setIsModalVisible(tr);
   };
 
   const handleOk1 = (e: React.MouseEvent<HTMLElement>) => {
@@ -201,6 +204,8 @@ onAuthStateChanged(auth, (user) => {
     console.log(e);
     setOpen1(false);
   };
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   
 
@@ -302,29 +307,14 @@ onAuthStateChanged(auth, (user) => {
 // };
 
 
-  return ( <><div style={bgStyle} onClick={showModal1}>
+  return ( <><div style={bgStyle} onClick={showModal1}><div style={bg2Style}></div> <Link to="/dm" style={{ color: "white", fontSize: "24px" }}>
+  Fuji
+</Link>
        <div className="container">
      <section className="containerInner">
-       <h2 className="header">Modal title</h2>
-       <button
-         type="button"
-         aria-label="閉じる"
-         className="iconClose"
-       >
-       </button>
-       <p className="contents">
-        a
-       </p>
+       {/* <h2 className="header">Modal title</h2> */}
+  
        <div className="buttonContainer">
-         <button
-           type="button"
-           className="button closeButton"
-         >
-           close
-         </button>
-         <button type="button" className="button nextButton">
-           Secondary Action
-         </button>
        </div>
      </section>
    </div>
@@ -346,6 +336,14 @@ onAuthStateChanged(auth, (user) => {
         <p>実際の映像が流れます。</p>
       </Modal> */}
       <div onClick={connect}>fuji</div>
+      <ReactplosiveModal
+      title={<h4>Title</h4>}
+      isVisible={isModalVisible}
+      onClose={() => setIsModalVisible(false)}
+    >
+      <p> Lorem ipsum dolor sit amet.</p>
+      <button>I do nothing.</button>
+    </ReactplosiveModal>
     </>
         { showP2p && <Tutorial /> }</div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
