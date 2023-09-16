@@ -61,7 +61,6 @@ const LikedProfileSchema = new mongoose.Schema({
 });
 
 const LikedProfile = mongoose.model('LikedProfile', LikedProfileSchema);
-
 app.post('/likeUser', async (req, res) => {
   try {
     console.log("poppopoppo");
@@ -71,19 +70,18 @@ app.post('/likeUser', async (req, res) => {
       return res.status(400).json({ success: false, message: 'myId is required.' });
     }
     
-    // LikedProfileコレクションから現在のユーザーの「いいね」リストを取得します。
     let likedProfileEntry = await LikedProfile.findOne({ myId: myId });
 
     if (!likedProfileEntry) {
-      // もしエントリが存在しなければ、新しいエントリを作成します。
       likedProfileEntry = new LikedProfile({ myId: myId, likeId: [userId] });
     } else {
-      // エントリが存在する場合は、プロフィールをリストに追加します。
-      likedProfileEntry.likedProfiles.push(userId);
+      likedProfileEntry.likeId.push(userId);  // NOTE: changed 'likedProfiles' to 'likeId' as per your schema
     }
 
-    // データベースに保存します。
     await likedProfileEntry.save();
+
+    // Send updated like to the frontend
+    io.emit('newLikeAdded', { myId: myId, userId: userId }); // sending the data to all clients
 
     res.json({ success: true, message: 'User liked successfully.' });
     
@@ -92,6 +90,7 @@ app.post('/likeUser', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error liking user!' });
   }
 });
+
 
 // Enable CORS for all routes
 app.use(cors());
@@ -322,7 +321,6 @@ app.post('/getUserProfile', async (req, res) => {
 //   }
 // };
 
-
 io.on('connection', (socket) => {
   console.log('User connected');
 
@@ -330,5 +328,9 @@ io.on('connection', (socket) => {
       console.log('User disconnected');
   });
 
-  // ここに他のイベントリスナーやカスタムロジックを追加します
+  // Listen for a new like
+  socket.on('newLikeAdded', (data) => {
+      console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
+      // You can add further processing here if needed
+  });
 });

@@ -5,14 +5,13 @@ const SOCKET_SERVER_URL = "http://localhost:5000";
 
 const Like = () => {
   const [socket, setSocket] = useState(null);
+  const [likes, setLikes] = useState([]);  // 新しいいいねのデータを保存するための状態
 
   useEffect(() => {
-    // ソケットの接続
     const newSocket = socketIOClient(SOCKET_SERVER_URL);
     setSocket(newSocket);
 
     return () => {
-      // コンポーネントがアンマウントされるとき、ソケットの接続を切断します。
       newSocket.disconnect();
     }
   }, []);
@@ -20,17 +19,27 @@ const Like = () => {
   useEffect(() => {
     if (!socket) return;
 
-    // イベントリスナーの例
     socket.on('connect', () => {
       console.log('Connected to the server');
     });
 
-    // 必要に応じて他のイベントリスナーをここに追加
+    // 'newLikeAdded'イベントをリッスンしてデータを受け取る
+    socket.on('newLikeAdded', (data) => {
+      console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
+      setLikes(prevLikes => [...prevLikes, data]);  // 状態を更新
+      console.log(likes);
+    });
+
   }, [socket]);
 
   return (
     <div>
-      {/* ここにコンポーネントのUIを描画 */}
+      <h2>Likes</h2>
+      <ul>
+        {likes.map((like, index) => (
+          <li key={index}>User with ID {like.myId} liked user with ID {like.userId}</li>
+        ))}
+      </ul>
     </div>
   );
 }
