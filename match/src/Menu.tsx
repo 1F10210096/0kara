@@ -34,7 +34,6 @@ const items: MenuProps['items'] = [
     label: 'メッセージ',
     key: 'app',
     icon: <UserOutlined />,
-    disabled: true,
   },
   {
     label: '設定',
@@ -116,6 +115,8 @@ const bg4Style: React.CSSProperties = {
   backgroundSize: 'cover',
   border: '1px solid #e1e1e1'
 };
+
+
 
 
 
