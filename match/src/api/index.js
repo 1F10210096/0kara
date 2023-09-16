@@ -2,8 +2,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const http = require('http');
+const socketIo = require('socket.io');
 const app = express();
 
+// 1. HTTPサーバーを作成し、Expressアプリをラップします
+const server = http.createServer(app);
+
+// 2. Socket.ioインスタンスを作成し、サーバーにバインドします
+const io = socketIo(server);
+
+
+app.use(cors());
+app.use(bodyParser.json());
 // MongoDBへの接続設定
 const MONGO_URI = 'mongodb+srv://koki:koki1218@atlascluster.xopoj3o.mongodb.net/'; // あなたのMongoDB URIに置き換えてください
 mongoose.connect(MONGO_URI, {
@@ -37,6 +48,46 @@ const ProfileSchema = new mongoose.Schema({
 
 const Profile = mongoose.model('Profile', ProfileSchema);
 
+
+//いいねリストのモデルを作成
+const LikedProfileSchema = new mongoose.Schema({
+  myId: String,  // 自分のIDを保存するためのフィールド
+  likeId: [String]
+});
+
+const LikedProfile = mongoose.model('LikedProfile', LikedProfileSchema);
+
+app.post('/likeUser', async (req, res) => {
+  try {
+    console.log("poppopoppo");
+    const { userId, myId } = req.body;
+
+    if (!myId) {
+      return res.status(400).json({ success: false, message: 'myId is required.' });
+    }
+    
+    // LikedProfileコレクションから現在のユーザーの「いいね」リストを取得します。
+    let likedProfileEntry = await LikedProfile.findOne({ myId: myId });
+
+    if (!likedProfileEntry) {
+      // もしエントリが存在しなければ、新しいエントリを作成します。
+      likedProfileEntry = new LikedProfile({ myId: myId, likeId: [userId] });
+    } else {
+      // エントリが存在する場合は、プロフィールをリストに追加します。
+      likedProfileEntry.likedProfiles.push(userId);
+    }
+
+    // データベースに保存します。
+    await likedProfileEntry.save();
+
+    res.json({ success: true, message: 'User liked successfully.' });
+    
+  } catch (err) {
+    console.error('Error liking user:', err);
+    res.status(500).json({ success: false, message: 'Error liking user!' });
+  }
+});
+
 // Enable CORS for all routes
 app.use(cors());
 try {
@@ -53,6 +104,7 @@ app.get('/getUsers', async (req, res) => {
 } catch (err) {
   console.log(err);
 }
+
 
 //test
 
@@ -222,7 +274,7 @@ try {
 const WaitingUser = mongoose.model('WaitingUser', WaitingUserSchema);
 
 const PORT = 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 } catch (err) {

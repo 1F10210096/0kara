@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import './index.css';
 import axios from 'axios';
 import { useState} from 'react';
+import { set } from 'mongoose';
 
 
 const auth = getAuth();
@@ -20,13 +21,18 @@ const auth = getAuth();
 
 function Tutorial(room12) {
   const [roomName, setRoomName] = useState('');
+  const [matchedUserId, setMatchedUserId] = useState(null);
+  const [MyId, setMyId] = useState(null);
 
+
+  
   useEffect(() => {
     let eventSource;
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const userId = user.uid;
+        setMyId(userId);
         eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
         eventSource.onmessage = function(event) {
           const data = JSON.parse(event.data);
@@ -38,6 +44,13 @@ function Tutorial(room12) {
           } else {
               console.error('roomNumber is missing in the received data');
           }
+
+
+              // matchedUserIdの存在を確認して、存在する場合はステートを更新
+    if (data && data.matchedUserId) {
+      setMatchedUserId(data.matchedUserId);
+  }
+
       };
       }
     });
@@ -49,6 +62,46 @@ function Tutorial(room12) {
       }
     }
   }, []); 
+
+  const handleLikeClick = () => {
+    console.log({ myId: MyId, userId: matchedUserId });
+    axios.post('http://localhost:5000/likeUser', { myId:MyId, userId: matchedUserId })
+      .then(response => {
+        if (response.data.success) {
+          console.log("Liked the user successfully.");
+        } else {
+          console.error("Error liking the user.");
+        }
+      })
+      .catch(error => {
+        console.error('Error sending like:', error);
+      });
+  };
+
+
+  const [userProfile, setUserProfile] = useState(null);
+  const [backendResponse, setBackendResponse] = useState('');
+  
+  useEffect(() => {
+    if (matchedUserId) {
+      console.log("juhnh")
+      axios.post('http://localhost:5000/getUserProfile', { userId: matchedUserId })
+        .then(response => {
+          if (response.data.success) {
+            setUserProfile(response.data.profile);
+            console.log(response.data.profile);
+          } else {
+            setBackendResponse('No profile found for the given matchedUserId.');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching profile:', error);
+          setBackendResponse('Error fetching user profile.');
+        });
+    }
+  }, [matchedUserId]);
+
+  
   const token = new SkyWayAuthToken({
     jti: uuidV4(),
     iat: nowInSec(),
@@ -168,6 +221,12 @@ function Tutorial(room12) {
       <video id="local-video" width="300px"  muted playsInline></video>
       <div id="button-area"></div>
       <div id="remote-media-area"></div>
+      {matchedUserId && (
+  <div>
+    <div>Matched with user ID: {matchedUserId}</div>
+    <button onClick={handleLikeClick}>いいね</button>
+  </div>
+)}
     </div>
   );
   }
