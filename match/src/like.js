@@ -5,7 +5,7 @@ const SOCKET_SERVER_URL = "http://localhost:5000";
 
 const Like = () => {
   const [socket, setSocket] = useState(null);
-  const [likes, setLikes] = useState([]);  // 新しいいいねのデータを保存するための状態
+  const [likes, setLikes] = useState([]);  // 新しいいいねのデータとプロフィール情報を保存するための状態
 
   useEffect(() => {
     const newSocket = socketIOClient(SOCKET_SERVER_URL);
@@ -25,9 +25,8 @@ const Like = () => {
 
     // 'newLikeAdded'イベントをリッスンしてデータを受け取る
     socket.on('newLikeAdded', (data) => {
-      console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
-      setLikes(prevLikes => [...prevLikes, data]);  // 状態を更新
-      console.log(likes);
+      console.log(`User with ID ${data.myId} liked user with ID ${data.userId} whose profile is ${data.profile.nickname}`);
+      setLikes(prevLikes => [...prevLikes, data]);
     });
 
   }, [socket]);
@@ -37,7 +36,11 @@ const Like = () => {
       <h2>Likes</h2>
       <ul>
         {likes.map((like, index) => (
-          <li key={index}>User with ID {like.myId} liked user with ID {like.userId}</li>
+          <li key={index}>
+            User with ID {like.myId} liked user with ID {like.userId}.
+            <p>Nickname: {like.profile.nickname}</p>
+            {/* 必要に応じて他のプロフィール情報を表示 */}
+          </li>
         ))}
       </ul>
     </div>

@@ -75,15 +75,18 @@ app.post('/likeUser', async (req, res) => {
     if (!likedProfileEntry) {
       likedProfileEntry = new LikedProfile({ myId: myId, likeId: [userId] });
     } else {
-      likedProfileEntry.likeId.push(userId);  // NOTE: changed 'likedProfiles' to 'likeId' as per your schema
+      likedProfileEntry.likeId.push(userId);  // 'likeId' as per your schema
     }
 
     await likedProfileEntry.save();
 
+    // userIdとokが一致するProfileを検索
+    const matchedProfile = await Profile.findOne({ ok: userId });
+    
     // Send updated like to the frontend
-    io.emit('newLikeAdded', { myId: myId, userId: userId }); // sending the data to all clients
+    io.emit('newLikeAdded', { myId: myId, userId: userId, profile: matchedProfile }); // sending the data to all clients
 
-    res.json({ success: true, message: 'User liked successfully.' });
+    res.json({ success: true, message: 'User liked successfully.', profile: matchedProfile });
     
   } catch (err) {
     console.error('Error liking user:', err);
