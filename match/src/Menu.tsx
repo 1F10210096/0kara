@@ -99,8 +99,8 @@ const bg2Style: React.CSSProperties = {
 
 const bg3Style = {
   display: 'flex',
-  height: '78vh',
-  width: '28vw',
+  height: '88vh',
+  width: '29vw',
   justifyContent: 'center',
   alignItems: 'center',
   backgroundSize: 'cover',
@@ -413,13 +413,7 @@ type ProfileType = {
   </div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}><div style={bg3Style}>
-    <div className="magic-button">
-        <div className="card">
-            Magic Card
-        </div>
-    </div>
-</div>
+    <div style={bg3Style}> <Like></Like>
 </div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
@@ -439,7 +433,6 @@ type ProfileType = {
     </ReactplosiveModal>
     </>
         { showP2p && <Tutorial /> }</div> 
-        <Like></Like>
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}
 
