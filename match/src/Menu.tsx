@@ -423,6 +423,12 @@ type ProfileType = {
       {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
       </Modal> */}
+      <div className="buttons">
+  {/* <button class="btn btn-gradient"> hover me </button>
+ <button class="btn btn-gradient gradient2"> hover me </button>
+ <button class="btn btn-gradient gradient3"> hover me </button>
+ <button class="btn btn-gradient gradient4"> hover me </button> */}
+</div>
       <div onClick={connect}>fuji</div>
       <ReactplosiveModal
       title={<h4>Title</h4>}
