@@ -13,7 +13,7 @@ import { uuidV4 } from '@skyway-sdk/room';
 import P2p from './p2p-room/src/main';
 import { Modal } from 'antd';
 import Tutorial from './tutorial/src/Tutorial';
-
+import MatchingComponent from './match';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ReactplosiveModal from "reactplosive-modal";
@@ -157,14 +157,11 @@ onAuthStateChanged(auth, (user) => {
     console.log(user);
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.email;
-    console.log(uid);
-    if (uid !== null) {
-      setUserID(uid);
-  } else {
-      // 必要に応じて何らかのデフォルト値またはエラーハンドリングを行う
-      setUserID("defaultID"); // 例としてのデフォルト値
-  }
+
+    const uid = user.uid;
+    setUserID(uid);
+    console.log(uid)
+
     // ...
   } else {
     // User is signed out
@@ -262,7 +259,61 @@ console.log(user);
       console.error('Failed to send userId:', error);
     }
   }
+
+  const initialProfile: ProfileType = {
+    ok: 'username',
+    nickname: '',
+    gender: '',
+    age: '',
+    comment: '',
+    photo: '',
+    // 他の必要なプロパティもここに追加してください
+  };
   
+  const [profile, setProfile] = useState<ProfileType>(initialProfile);
+
+  useEffect(() => {
+    let attemptCount = 0; // APIを呼び出す試行回数を制限するための変数
+    const maxAttempts = 10; // 最大試行回数
+    const intervalTime = 5000; // 5秒ごとにAPIを呼び出す
+  
+    const intervalId = setInterval(async () => {
+      if (user) {
+        try {
+          console.log(user);
+          const response = await fetch('http://localhost:5000/getUserProfile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: user })
+          });
+          console.log("djaidwji")
+          const data = await response.json();
+
+          if (data.success) {
+            console.log(data.profile)
+            setProfile(data.profile);
+            clearInterval(intervalId); // プロファイルが取得できたら繰り返しを停止
+          } else {
+            console.error(data.message);
+          }
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+        }
+      }
+  
+      attemptCount++;
+      if (attemptCount >= maxAttempts) {
+        clearInterval(intervalId); // 最大試行回数に達したら繰り返しを停止
+      }
+    }, intervalTime);
+  
+    // コンポーネントのアンマウント時にintervalをクリアする
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [user]);
   async function requestMatching(userId: string) {
     try {
       console.log(userId,"match");
@@ -343,15 +394,28 @@ console.log(user);
 //   console.error('エラーが発生しました:', event);
 //   eventSource.close();
 // };
+type ProfileType = {
+  ok: string;
+  nickname: string;
+  gender: string;
+  age: string;
+  comment: string;
+  photo: string;
+  // 他の必要なプロパティもここに追加してください
+};
+
 
 
 
   Tutorial();
+
   
 
 
 
-  return ( <><div style={bgStyle}><div style={bg2Style}></div> <div className="menuContainer whiteText gothicFont">fuji</div></div>
+  return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
+  {profile.nickname}
+</div> </div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
     <div style={bg3Style}><div style={bg3Style}>
@@ -364,6 +428,7 @@ console.log(user);
 </div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
+        <MatchingComponent />
         <>
       {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>

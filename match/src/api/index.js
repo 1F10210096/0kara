@@ -2,13 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const admin = require('firebase-admin');
-
-const serviceAccount = require('src/api/kara-3091d-firebase-adminsdk-p1jt0-f3caa905cf.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
 const app = express();
 app.use(express.json());
 // MongoDBへの接続設定
@@ -33,7 +26,7 @@ const User = mongoose.model('User', {
 });
 
 const ProfileSchema = new mongoose.Schema({
-  userId: String,
+  ok: String,
   nickname: String,
   gender: String,
   age: String, // もし年齢が数値として保存される場合は 'Number' に変更してください
@@ -159,11 +152,17 @@ app.get('/events', (req, res) => {
 
 app.get('/matchUser/:userId', async (req, res) => {
   try {
+    // 必要なヘッダーの設定
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
     const { userId } = req.params;
     const users = await WaitingUser.find({ userId: { $ne: userId } });
 
     if (!users.length) {
-      return res.json({ success: false, message: 'No users available for matching.' });
+      res.write(`data: ${JSON.stringify({ success: false, message: 'No users available for matching.' })}\n\n`);
+      return res.end();
     }
 
     const matchedUser = users[0];
@@ -171,11 +170,30 @@ app.get('/matchUser/:userId', async (req, res) => {
 
     // ランダムな数字を生成
     const randomNum = Math.floor(Math.random() * 10000); // 0から9999までの整数
+    
+    // クライアントにデータを送信する関数
+    const sendData = (client, randomNum, matchedUserId) => {
+      const data = {
+        roomNumber: randomNum,
+        matchedUserId: matchedUserId
+      };
+      console.log("Sending data:", data);
+      client.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    if (clients[matchedUser.userId]) {
+      sendData(clients[matchedUser.userId], randomNum, userId);
+    }
+
+    if (clients[userId]) {
+      sendData(clients[userId], randomNum, matchedUser.userId);
+    }
 
     console.log(matchedUser.userId, "matchedUser.userId")
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
+
 
 
 // クライアントにデータを送信する関数
@@ -200,8 +218,11 @@ if (clients[userId]) {
 
   res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
 
+
   } catch (err) {
-    res.json({ success: false, message: 'Error matching user!' });
+    console.error(err);
+    res.write(`data: ${JSON.stringify({ success: false, message: 'Error matching user!' })}\n\n`);
+    return res.end();
   }
 });
 
@@ -233,18 +254,38 @@ app.listen(PORT, () => {
   console.log(err);
 }
 
-
-const checkFirebaseToken = async (req, res, next) => {
-  const headerToken = req.headers.authorization;
-  if (!headerToken) {
-    return res.status(401).send({ message: 'No token, authorization denied' });
-  }
-
+try{
+app.post('/getUserProfile', async (req, res) => {
   try {
-    const decodedToken = await admin.auth().verifyIdToken(headerToken);
-    req.user = decodedToken;
-    next();
+    console.log("poppo")
+    const { userId } = req.body;
+    const profile = await Profile.findOne({ ok: userId }); // ここでokフィールドとuserIdを照合
+    if (profile) {
+      res.json({ success: true, profile });
+    } else {
+      res.json({ success: false, message: 'No profile found for the given userId' });
+    }
   } catch (err) {
-    res.status(401).send({ message: 'Invalid token, authorization denied' });
+    console.error('Error fetching profile:', err);
+    res.status(500).json({ success: false, message: 'Error fetching profile!' });
   }
-};
+});
+} catch (err) {
+  console.log(err);
+}
+
+
+// const checkFirebaseToken = async (req, res, next) => {
+//   const headerToken = req.headers.authorization;
+//   if (!headerToken) {
+//     return res.status(401).send({ message: 'No token, authorization denied' });
+//   }
+
+//   try {
+//     const decodedToken = await admin.auth().verifyIdToken(headerToken);
+//     req.user = decodedToken;
+//     next();
+//   } catch (err) {
+//     res.status(401).send({ message: 'Invalid token, authorization denied' });
+//   }
+// };

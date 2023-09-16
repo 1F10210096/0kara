@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Cascader,
@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined,SendOutlined } from '@ant-design/icons'
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -31,12 +32,32 @@ const normFile = (e: any) => {
 export default function Myprofile() {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
   const [formData, setFormData] = useState({
+    ok: "",
     nickname: "",
     gender: "",
     age: "",
     comment: "",
     photo: null // 画像アップロードの場合は適切に管理する必要があります
   });
+  const [user, setUserID] = useState('');
+
+  const auth = getAuth();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        setUserID(uid);
+        setFormData(prev => ({ ...prev, ok: uid }));
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+  
+    // コンポーネントがアンマウントされるときにリスナーを解除します。
+    return () => unsubscribe();
+  
+  }, [auth]);
 
   const handleSubmit = async () => {
     try {
@@ -60,6 +81,8 @@ export default function Myprofile() {
       console.error("There was an error sending the data:", error);
     }
   };
+
+
 
 
   return (
