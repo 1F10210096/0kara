@@ -23,46 +23,38 @@ console.log("dadsadsda")
 
   }, []);
 
+  const auth = getAuth();
+
   useEffect(() => {
-    let eventSource: EventSource;
-  
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+let eventSource: EventSource | undefined;
+
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         const userId = user.uid;
-        eventSource = new EventSource(`http://localhost:5000/matchUser/${userId}`);
-        
+        eventSource = new EventSource(`http://localhost:5000/events?userId=${userId}`);
         eventSource.onmessage = function(event) {
-          console.log("Received data:", event.data);
           const data = JSON.parse(event.data);
-  
-          if (data.roomNumber) {
-            setRoomNumber(data.roomNumber);
+          console.log('Received data:', data);
+      
+          if (data && data.roomNumber !== undefined) {
+              console.log('Received room number:', data.roomNumber);
+
+          } else {
+              console.error('roomNumber is missing in the received data');
           }
-  
-          if (data.matchedUserId) {
-            setMatchedUserId(data.matchedUserId);
-          }
-        };
-  
-        eventSource.onerror = function(error) {
-          console.error("EventSource failed:", error);
-        };
-  
-      } else {
-        setUserID(null);
+      };
       }
     });
-  
+
     // Cleanup
     return () => {
-      unsubscribe();
       if (eventSource) {
         eventSource.close();
       }
     }
-  }, []);
+  }, []); 
 
+  
   return (
     <div>
       {roomNumber && <div>Room Number: {roomNumber}</div>}

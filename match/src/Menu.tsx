@@ -17,7 +17,9 @@ import MatchingComponent from './match';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ReactplosiveModal from "reactplosive-modal";
+// import socketIOClient from "socket.io-client";
 import { set } from 'mongoose';
+import Like from './like';
 // import './card.css';
 // import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
@@ -98,8 +100,8 @@ const bg2Style: React.CSSProperties = {
 
 const bg3Style = {
   display: 'flex',
-  height: '78vh',
-  width: '28vw',
+  height: '88vh',
+  width: '29vw',
   justifyContent: 'center',
   alignItems: 'center',
   backgroundSize: 'cover',
@@ -407,9 +409,11 @@ type ProfileType = {
 
 
 
+
   Tutorial();
 
   
+
 
 
 
@@ -418,13 +422,7 @@ type ProfileType = {
 </div> </div>
 
     <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}><div style={bg3Style}>
-    <div className="magic-button">
-        <div className="card">
-            Magic Card
-        </div>
-    </div>
-</div>
+    <div style={bg3Style}> <Like></Like>
 </div>
     <div style={bg4Style}>
         {/* 追加した接続ボタン */}
