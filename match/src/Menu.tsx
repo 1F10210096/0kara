@@ -17,7 +17,9 @@ import MatchingComponent from './match';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ReactplosiveModal from "reactplosive-modal";
+// import socketIOClient from "socket.io-client";
 import { set } from 'mongoose';
+import Like from './like';
 // import './card.css';
 // import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
@@ -371,6 +373,32 @@ type ProfileType = {
 };
 
 
+// const [socket, setSocket] = useState(null);
+
+// useEffect(() => {
+//   // ソケットの接続
+//   const newSocket = socketIOClient(API_ENDPOINT;
+//   setSocket(newSocket);
+
+//   return () => {
+//     // コンポーネントがアンマウントされるとき、ソケットの接続を切断します。
+//     newSocket.disconnect();
+//   }
+// }, []);
+
+// useEffect(() => {
+//   if (!socket) return;
+
+//   // イベントリスナーの例
+//   socket.on('connect', () => {
+//     console.log('Connected to the server');
+//   });
+
+//   // 必要に応じて他のイベントリスナーをここに追加
+// }, [socket]);
+
+
+
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
 </div> 
@@ -411,6 +439,7 @@ type ProfileType = {
     </ReactplosiveModal>
     </>
         { showP2p && <Tutorial /> }</div> 
+        <Like></Like>
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}
 
