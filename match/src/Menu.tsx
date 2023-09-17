@@ -35,7 +35,6 @@ const items: MenuProps['items'] = [
     label: 'メッセージ',
     key: 'app',
     icon: <UserOutlined />,
-    disabled: true,
   },
   {
     label: '設定',
@@ -117,6 +116,8 @@ const bg4Style: React.CSSProperties = {
   backgroundSize: 'cover',
   border: '1px solid #e1e1e1'
 };
+
+
 
 
 
@@ -431,6 +432,13 @@ type ProfileType = {
       {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
       </Modal> */}
+
+      <div className="buttons">
+  {/* <button class="btn btn-gradient"> hover me </button>
+ <button class="btn btn-gradient gradient2"> hover me </button>
+ <button class="btn btn-gradient gradient3"> hover me </button>
+ <button class="btn btn-gradient gradient4"> hover me </button> */}
+</div>
 
       <div onClick={connect}>fuji</div>
 

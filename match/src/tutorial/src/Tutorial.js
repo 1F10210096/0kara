@@ -20,6 +20,24 @@ import { set } from 'mongoose';
 const auth = getAuth();
 
 
+var animateButton = function(e) {
+
+  e.preventDefault;
+  //reset animation
+  e.target.classList.remove('animate');
+  
+  e.target.classList.add('animate');
+  setTimeout(function(){
+    e.target.classList.remove('animate');
+  },700);
+};
+
+var bubblyButtons = document.getElementsByClassName("bubbly-button");
+
+for (var i = 0; i < bubblyButtons.length; i++) {
+  bubblyButtons[i].addEventListener('click', animateButton, false);
+}
+
 
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
@@ -229,7 +247,7 @@ function Tutorial(room12) {
     <div>
       <p>ID: <span id="my-id"></span></p>
       <div>
-        room name: <input id="room-name" type="text" />
+        room name: <input id="room-name" type="text" /><button className="bubbly-button">Click me!</button>
         <button id="join">join</button>
       </div>
       <video id="local-video" width="300px" muted playsInline></video>
