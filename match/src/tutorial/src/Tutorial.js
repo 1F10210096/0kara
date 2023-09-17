@@ -11,8 +11,10 @@ import { appId, secret } from '../../p2p-room/src/env';
 import { useEffect } from 'react';
 import './index.css';
 import axios from 'axios';
+
 import { useState} from 'react';
 import { set } from 'mongoose';
+
 
 
 const auth = getAuth();
@@ -35,6 +37,13 @@ var bubblyButtons = document.getElementsByClassName("bubbly-button");
 for (var i = 0; i < bubblyButtons.length; i++) {
   bubblyButtons[i].addEventListener('click', animateButton, false);
 }
+
+
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('Received random number:', data.randomNum);
+        const roomNameInput = document.getElementById('room-name');
+            roomNameInput.value = data.randomNum.toString(); // 数値の場合、文字列に変換
 
 
 function Tutorial(room12) {
@@ -77,6 +86,7 @@ function Tutorial(room12) {
     return () => {
       if (eventSource) {
         eventSource.close();
+
       }
     }
   }, []); 
@@ -120,6 +130,7 @@ function Tutorial(room12) {
   }, [matchedUserId]);
 
   
+
   const token = new SkyWayAuthToken({
     jti: uuidV4(),
     iat: nowInSec(),
@@ -180,10 +191,14 @@ function Tutorial(room12) {
   console.log('setupSkyway3');
     joinButton.onclick = async () => {
       if (roomNameInput.value === '') return;
+
   
       const context = await SkyWayContext.Create(token);
       console.log(roomNameInput.value)
-      // roomNameInput.value = roomName
+
+      roomNameInput.value = roomName
+
+
       const room = await SkyWayRoom.FindOrCreate(context, {
         type: 'p2p',
         name: roomNameInput.value,
