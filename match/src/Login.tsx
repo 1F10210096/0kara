@@ -8,6 +8,7 @@ import axios from 'axios';
 import './firebaseConfig'; 
 import './Home.css';
 import 'particles.js';
+import './a.css'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 const bgStyle = {
   display: 'flex',
@@ -197,6 +198,17 @@ const PageA: React.FC = () => {
       <br /> 
       <Link to="/">back Home</Link>
     </Form>
+    <div className="loader">
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+  <div><span></span></div>
+</div>
 
     </div>
     </div>
