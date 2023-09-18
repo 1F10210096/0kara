@@ -9,6 +9,7 @@ const app = express();
 
 
 
+
 app.use(cors());
 app.use(bodyParser.json());
 const server = http.createServer(app);
@@ -19,6 +20,7 @@ const io = new Server(server, {
       methods: ["GET", "POST"]
   }
 });
+
 
 // MongoDBへの接続設定
 const MONGO_URI = 'mongodb+srv://koki:koki1218@atlascluster.xopoj3o.mongodb.net/'; // あなたのMongoDB URIに置き換えてください
@@ -180,7 +182,9 @@ const WaitingUserSchema = new mongoose.Schema({
 
 //待機リストにユーザーを追加するエンドポイント:
 app.post('/waiting', async (req, res) => {
+  console.log("waiting")
   const { userId } = req.body;
+  console.log(userId, "userId")
 
   // userIdが提供されていない、またはすでに待機リストに存在する場合はエラーを返す
   const exists = await WaitingUser.findOne({ userId });
@@ -270,12 +274,35 @@ app.get('/matchUser/:userId', async (req, res) => {
       sendData(clients[userId], randomNum, matchedUser.userId);
     }
 
+    console.log(matchedUser.userId, "matchedUser.userId")
     // マッチしたら、待機リストから2人のユーザーを削除
     await WaitingUser.deleteOne({ userId: matchedUser.userId });
     await WaitingUser.deleteOne({ userId });
 
-    res.write(`data: ${JSON.stringify({ success: true, match: matchedUser.userId, randomNum: randomNum })}\n\n`);
-    return res.end();
+
+
+// クライアントにデータを送信する関数
+const sendData = (client, randomNum, matchedUserId) => {
+  const data = {
+      roomNumber: randomNum,
+      matchedUserId: matchedUserId
+  };
+  client.write(`data: ${JSON.stringify(data)}\n\n`);
+};
+
+if (clients[matchedUser.userId]) {
+  // matchedUserにはuserIdのユーザーがマッチしたという情報を送信
+  sendData(clients[matchedUser.userId], randomNum, userId);
+}
+
+if (clients[userId]) {
+  // userIdのユーザーにはmatchedUser.userIdとマッチしたという情報を送信
+  sendData(clients[userId], randomNum, matchedUser.userId);
+}
+  
+
+  res.json({ success: true, match: matchedUser.userId, randomNum: randomNum });
+
 
   } catch (err) {
     console.error(err);
