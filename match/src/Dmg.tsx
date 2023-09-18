@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Space } from 'antd';
+import { Button, Input, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from './2.jpg';
 import userImage from './user.png';
@@ -434,8 +434,52 @@ type ProfileType = {
 //   // 必要に応じて他のイベントリスナーをここに追加
 // }, [socket]);
 
+const [opponent, setopponentID] = useState('');
+const [roomId2, setRoomId2] = useState(Number);
+let roomId1; // roomId を再代入可能な変数として宣言
+
+function generateRoomId() {
+  roomId1 = Math.floor(Math.random() * 100000) + 1; // 新しい値を代入
+  setRoomId2(roomId1);
+}
+async function sendIdsToBackend(roomId: string, user: string, opponent: string) {
+  console.log("lflfg");
+  console.log(roomId, user, opponent);
+  try {
+    const response = await fetch('http://localhost:5000/sendIds', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomId, user, opponent }), // リクエストボディに roomId, user, opponent を含める
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+
+    // レスポンスデータを基にした追加の処理をここに記述
+    console.log('Response Data:', data);
+
+    // 他の処理をここに追加
+
+    return data;
+  } catch (error) {
+    // エラーハンドリング
+    console.error('Error:', error);
+    throw error;
+  }
+}
 
 
+  // クリック時にopponentの値を設定するハンドラー
+  function handleProfileClick(profileId: string) {
+    const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
+    generateRoomId();
+    sendIdsToBackend(user, opponent, roomId2.toString());
+  }
 
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
@@ -456,7 +500,7 @@ type ProfileType = {
   <Like></Like>
   {
     Array.isArray(likedProfiles[0]) && likedProfiles[0].map((profileId, index) => (
-      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}>
+      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId)}>
   {profileId}
 </div>
     ))
@@ -469,8 +513,12 @@ type ProfileType = {
     <>
       {/* 他のコード */}
     </>
-    { showP2p && <Tutorial /> }
+
   </div>
+  <Space.Compact style={{ width: '100%' }}>
+      <Input defaultValue="Combine input and button" />
+      <Button type="primary">Submit</Button>
+    </Space.Compact>
 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}

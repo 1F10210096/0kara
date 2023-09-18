@@ -347,6 +347,32 @@ app.post('/getUserProfile', async (req, res) => {
 //   }
 // };
   
+const roomAndIdsSchema = new mongoose.Schema({
+  roomId: String,
+  idsArray: [String],
+});
+
+const RoomAndIds = mongoose.model('RoomAndIds', roomAndIdsSchema);
+
+app.post('/sendIds', async (req, res) => {
+  try {
+    const { roomId, user, opponent } = req.body;
+
+    if (!roomId || !user || !opponent) {
+      return res.status(400).json({ success: false, message: 'roomId, user, and opponent are required.' });
+    }
+
+    // roomId と idsArray をデータベースに保存
+    const roomAndIdsEntry = new RoomAndIds({ roomId, idsArray: [user, opponent] });
+    await roomAndIdsEntry.save();
+
+    res.json({ success: true, message: 'Room and IDs saved successfully.' });
+
+  } catch (err) {
+    console.error('Error saving room and IDs:', err);
+    res.status(500).json({ success: false, message: 'Error saving room and IDs!' });
+  }
+});
 
 io.on('connection', (socket) => {
   console.log('User connected');
