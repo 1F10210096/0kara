@@ -95,9 +95,9 @@ const bg2Style: React.CSSProperties = {
   left: '30px',      
   top: '20px',
 };
-
-const bg3Style = {
+const bg3Style: React.CSSProperties = {
   display: 'flex',
+  flexDirection: 'column',
   height: '88vh',
   width: '29vw',
   justifyContent: 'center',
@@ -120,11 +120,11 @@ const bg4Style: React.CSSProperties = {
 
 
 
-const Menu1: React.FC = () => {
+const Dmg: React.FC = () => {
     const navigate = useNavigate();
     const [showP2p, setShowP2p] = useState(true);
     const [isInWaitingList, setIsInWaitingList] = useState(false);
-    const [current, setCurrent] = useState('mail');
+    const [current, setCurrent] = useState('Dmg');
     const roomNameInputRef = useRef<HTMLInputElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(true);
     const [usernames, setUsernames] = useState([]);
@@ -180,10 +180,8 @@ onAuthStateChanged(auth, (user) => {
     const handleCancel = () => {
       setIsModalOpen(false);
     };
-    const onClick: MenuProps['onClick'] = (e) => {
-      console.log('click ', e);
-      setCurrent(e.key);
-    };
+
+  
   const search = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('Button clicked!');
     navigate('/tutorial');
@@ -225,6 +223,51 @@ onAuthStateChanged(auth, (user) => {
     photo: '',
     // 他の必要なプロパティもここに追加してください
   };
+
+  
+  useEffect(() => {
+    let attemptCount = 0; // APIを呼び出す試行回数を制限するための変数
+    const maxAttempts = 10; // 最大試行回数
+    const intervalTime = 5000; // 5秒ごとにAPIを呼び出す
+  
+    const intervalId = setInterval(async () => {
+      if (user) {
+        try {
+          console.log("oiuy");
+          const response = await fetch('http://localhost:5000/getUserProfile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: user })
+          });
+          console.log("djaidwji")
+          const data = await response.json();
+
+          if (data.success) {
+            console.log(data.profile)
+            setProfile(data.profile);
+            clearInterval(intervalId); // プロファイルが取得できたら繰り返しを停止
+          } else {
+            console.error(data.message);
+          }
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+        }
+      }
+  
+      attemptCount++;
+      if (attemptCount >= maxAttempts) {
+        clearInterval(intervalId); // 最大試行回数に達したら繰り返しを停止
+      }
+    }, intervalTime);
+  
+    // コンポーネントのアンマウント時にintervalをクリアする
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [user]);
+
   
   const [profile, setProfile] = useState<ProfileType>(initialProfile);
 
@@ -288,8 +331,55 @@ onAuthStateChanged(auth, (user) => {
     return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
   }
 
+  interface LikedProfilesResponse {
+    success: boolean;
+    likedProfiles?: string[];
+    message?: string;
+}
 
+  const [likedProfiles, setLikedProfiles] = useState<string[]>([]); 
+  const [attemptCount, setAttemptCount] = useState(0);
+  const intervalTime = 5000;
 
+  const maxAttempts = 5; // 例として5回のリトライを指定
+useEffect(() => {
+  if (!user) return; // userが存在しない場合、intervalをセットアップしない
+
+  const intervalId = setInterval(async () => {
+    try {
+      console.log("Fetching liked profiles...");
+      const response = await fetch(`http://localhost:5000/getLikedProfiles?myId=${user}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log("Response received.");
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(data.likedProfiles);
+        setLikedProfiles(data.likedProfiles);
+        clearInterval(intervalId); // liked profilesが取得できたら繰り返しを停止
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error('Error fetching liked profiles:', err);
+    }
+
+    setAttemptCount(prevAttempt => prevAttempt + 1); // attemptCountを更新
+
+    if (attemptCount >= maxAttempts) {
+      clearInterval(intervalId); // 最大試行回数に達したら繰り返しを停止
+    }
+  }, intervalTime);
+
+  // コンポーネントのアンマウント時にintervalをクリアする
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [user, attemptCount, maxAttempts, intervalTime]);
   // console.log(room12)
   // Tutorial(room12);
 //   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
@@ -318,6 +408,8 @@ type ProfileType = {
 };
 
 
+
+
 // const [socket, setSocket] = useState(null);
 
 // useEffect(() => {
@@ -344,6 +436,8 @@ type ProfileType = {
 
 
 
+
+
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
 </div> 
@@ -357,25 +451,27 @@ type ProfileType = {
    </div>
   </div>
 
-    <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
-    <div style={bg3Style}> <Like></Like>
+  <Menu style={{ height: '50px' }} selectedKeys={[current]} mode="horizontal" items={items} />
+<div style={bg3Style}> 
+  <Like></Like>
+  {
+    Array.isArray(likedProfiles[0]) && likedProfiles[0].map((profileId, index) => (
+      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}>
+  {profileId}
 </div>
-    <div style={bg4Style}>
-        {/* 追加した接続ボタン */}
-        <MatchingComponent />
-        <>
-      {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
-        <p>実際の映像が流れます。</p>
-      </Modal> */}
-      <div className="buttons">
-  {/* <button class="btn btn-gradient"> hover me </button>
- <button class="btn btn-gradient gradient2"> hover me </button>
- <button class="btn btn-gradient gradient3"> hover me </button>
- <button class="btn btn-gradient gradient4"> hover me </button> */}
+    ))
+  }
 </div>
-      
+<div style={bg4Style}>
+
+    {/* その他のコンポーネントや要素 */}
+    <MatchingComponent />
+    <>
+      {/* 他のコード */}
     </>
-        { showP2p && <Tutorial /> }</div> 
+    { showP2p && <Tutorial /> }
+  </div>
+
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}
 
@@ -383,4 +479,4 @@ type ProfileType = {
   );
 };
 
-export default Menu1;
+export default Dmg;

@@ -96,6 +96,30 @@ app.post('/likeUser', async (req, res) => {
   }
 });
 
+app.get('/getLikedProfiles', async (req, res) => {
+  console.log("Entered /getLikedProfiles endpoint");  // ← 既に追加しています
+
+  try {
+    const { myId } = req.query;
+
+    let likedProfiles;
+    if (myId) {
+      const likedProfileEntry = await LikedProfile.findOne({ myId: myId });
+      if (!likedProfileEntry) {
+        return res.status(404).json({ success: false, message: 'No liked profiles found for this user.' });
+      }
+      likedProfiles = [likedProfileEntry.likeId];
+    } else {
+      likedProfiles = await LikedProfile.find({});
+    }
+
+    res.json({ success: true, likedProfiles: likedProfiles });
+
+  } catch (err) {
+    console.error('Error fetching liked profiles:', err);
+    res.status(500).json({ success: false, message: 'Error fetching liked profiles!' });
+  }
+});
 
 // Enable CORS for all routes
 app.use(cors());
@@ -318,7 +342,6 @@ server.listen(PORT, () => {
 try{
 app.post('/getUserProfile', async (req, res) => {
   try {
-    console.log("poppo")
     const { userId } = req.body;
     const profile = await Profile.findOne({ ok: userId }); // ここでokフィールドとuserIdを照合
     if (profile) {
@@ -350,6 +373,7 @@ app.post('/getUserProfile', async (req, res) => {
 //     res.status(401).send({ message: 'Invalid token, authorization denied' });
 //   }
 // };
+  
 
 io.on('connection', (socket) => {
   console.log('User connected');
