@@ -20,58 +20,24 @@ import ReactplosiveModal from "reactplosive-modal";
 // import socketIOClient from "socket.io-client";
 import { set } from 'mongoose';
 import Like from './like';
+
 // import './card.css';
 // import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
-
-const items: MenuProps['items'] = [
+const items = [
   {
     label: 'いいねされた人',
     key: 'mail',
+    path: '/likes',
     icon: <UserAddOutlined />,
   },
   {
     label: 'メッセージ',
     key: 'app',
+    path: '/messages',
     icon: <UserOutlined />,
   },
-  {
-    label: '設定',
-    key: 'SubMenu',
-    icon: <SettingOutlined />,
-    children: [
-      {
-        type: 'group',
-        label: 'Item 1',
-        children: [
-          {
-            label: 'Option 1',
-            key: 'setting:1',
-          },
-          {
-            label: 'Option 2',
-            key: 'setting:2',
-          },
-        ],
-      },
-      {
-        type: 'group',
-        label: 'Item 2',
-        children: [
-          {
-            label: 'Option 3',
-            key: 'setting:3',
-          },
-          {
-            label: 'Option 4',
-            key: 'setting:4',
-          },
-        ],
-      },
-    ],
-  },
 ];
-
 
 const bgStyle = {
   display: 'flex',
@@ -124,8 +90,8 @@ const Menu1: React.FC = () => {
     const navigate = useNavigate();
     const [showP2p, setShowP2p] = useState(true);
     const [isInWaitingList, setIsInWaitingList] = useState(false);
-    const [current, setCurrent] = useState('mail');
     const roomNameInputRef = useRef<HTMLInputElement>(null);
+    
     const [isModalOpen, setIsModalOpen] = useState(true);
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -180,10 +146,19 @@ onAuthStateChanged(auth, (user) => {
     const handleCancel = () => {
       setIsModalOpen(false);
     };
-    const onClick: MenuProps['onClick'] = (e) => {
-      console.log('click ', e);
-      setCurrent(e.key);
-    };
+
+
+  const [current, setCurrent] = React.useState('mail'); // assuming 'mail' as the default selected key
+
+
+  const onClick = (e: any) => {
+    const menuItem = items.find(item => item.key === e.key);
+    if (menuItem && menuItem.path) {
+      navigate(menuItem.path);
+    }
+    setCurrent(e.key);
+  }
+
   const search = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('Button clicked!');
     navigate('/tutorial');
@@ -287,6 +262,7 @@ onAuthStateChanged(auth, (user) => {
       clearInterval(intervalId);
     };
   }, [user]);
+  
   async function requestMatching(userId: string) {
     try {
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
@@ -413,7 +389,14 @@ type ProfileType = {
    </div>
   </div>
 
-    <Menu style={{ height: '50px' }} onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
+  <Menu 
+      style={{ height: '50px' }} 
+      onClick={onClick} 
+      selectedKeys={[current]} 
+      mode="horizontal" 
+      items={items} 
+    />
+     <Link to="/Dmg" >Dmg</Link>
     <div style={bg3Style}> <Like></Like>
 </div>
     <div style={bg4Style}>

@@ -9,6 +9,7 @@ import Dm from "./dm";
 import Friend from "./friend.js";
 import Tutorial from "./tutorial/src/Tutorial";
 import P2p from "./p2p-room/src/main";
+import Dmg from "./Dmg";
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +25,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" />} />
 
         <Route path="/tutorial"element={<Tutorial/>} />
+        <Route path="/Dmg"element={<Dmg/>} />
     
       </Routes>
     </BrowserRouter>
