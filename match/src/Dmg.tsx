@@ -132,21 +132,25 @@ const Dmg: React.FC = () => {
     const [error, setError] = useState(null);
     const [user, setUserID] = useState('');
 
-    const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.uid;
-    setUserID(uid);
-    console.log(uid)
-    // ...
-  } else {
-    // User is signed out
-    // ...
-  }
-});
-
+    const auth = getAuth();// 初期値としてコールバックの実行フラグを true に設定
+    let isCallbackEnabled = true;
+    
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in
+          const uid = user.uid;
+          setUserID(uid);
+          // ...
+        } else {
+          // User is signed out
+          // ...
+        }
+      });
+    
+      // コンポーネントがアンマウントされたときにサブスクライブを解除
+      return () => unsubscribe();
+    }, []); // 空の依存配列を渡して一度だけ実行されるようにする
     //test
     useEffect(() => {
       fetch('http://localhost:5000/getUsers')
@@ -433,25 +437,27 @@ type ProfileType = {
 
 //   // 必要に応じて他のイベントリスナーをここに追加
 // }, [socket]);
-
-const [opponent, setopponentID] = useState('');
-const [roomId2, setRoomId2] = useState(Number);
-let roomId1; // roomId を再代入可能な変数として宣言
+const [opponent, setOpponentID] = useState('');
+const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
+let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
 function generateRoomId() {
   roomId1 = Math.floor(Math.random() * 100000) + 1; // 新しい値を代入
   setRoomId2(roomId1);
+  // generateRoomId の実行が完了した後に sendIdsToBackend を呼び出す
+  sendIdsToBackend(user, opponent, roomId1.toString());
 }
-async function sendIdsToBackend(roomId: string, user: string, opponent: string) {
+
+async function sendIdsToBackend(user: string, opponent: string, roomId: string) {
   console.log("lflfg");
-  console.log(roomId, user, opponent);
+  console.log(user, opponent, roomId);
   try {
     const response = await fetch('http://localhost:5000/sendIds', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ roomId, user, opponent }), // リクエストボディに roomId, user, opponent を含める
+      body: JSON.stringify({ user, opponent, roomId }), // リクエストボディに roomId, user, opponent を含める
     });
 
     if (!response.ok) {
@@ -473,13 +479,11 @@ async function sendIdsToBackend(roomId: string, user: string, opponent: string) 
   }
 }
 
-
-  // クリック時にopponentの値を設定するハンドラー
-  function handleProfileClick(profileId: string) {
-    const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
-    generateRoomId();
-    sendIdsToBackend(user, opponent, roomId2.toString());
-  }
+// クリック時にopponentの値を設定するハンドラー
+function handleProfileClick(profileId: string) {
+  const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
+  generateRoomId();
+}
 
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
