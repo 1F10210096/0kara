@@ -295,7 +295,7 @@ console.log(user);
       clearInterval(intervalId);
     };
   }, [user]);
-  
+
   async function requestMatching(userId: string) {
     try {
       console.log(userId,"match");
@@ -385,6 +385,7 @@ type ProfileType = {
   photo: string;
   // 他の必要なプロパティもここに追加してください
 };
+
 
 
 
