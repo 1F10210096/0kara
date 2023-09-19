@@ -262,7 +262,7 @@ onAuthStateChanged(auth, (user) => {
       clearInterval(intervalId);
     };
   }, [user]);
-  
+
   async function requestMatching(userId: string) {
     try {
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
@@ -348,6 +348,8 @@ type ProfileType = {
   photo: string;
   // 他の必要なプロパティもここに追加してください
 };
+
+
 
 
 // const [socket, setSocket] = useState(null);

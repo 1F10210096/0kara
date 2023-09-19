@@ -135,22 +135,37 @@ const Dmg: React.FC = () => {
     const auth = getAuth();// 初期値としてコールバックの実行フラグを true に設定
     let isCallbackEnabled = true;
     
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          // User is signed in
-          const uid = user.uid;
-          setUserID(uid);
-          // ...
-        } else {
-          // User is signed out
-          // ...
-        }
-      });
+    onAuthStateChanged(auth, (user) => {
+      // コールバックの実行フラグが false の場合、何もしない
+      if (!isCallbackEnabled) {
+        return;
+      }
     
-      // コンポーネントがアンマウントされたときにサブスクライブを解除
-      return () => unsubscribe();
-    }, []); // 空の依存配列を渡して一度だけ実行されるようにする
+      if (user) {
+        // User is signed in
+        const uid = user.uid;
+        console.log(uid);
+        setUserID(uid);
+        // ...
+    
+        // コールバックの実行を一時的に無効にする
+        isCallbackEnabled = false;
+    
+        // ユーザーがサインアウトした後、再度コールバックを有効にする
+        // この部分は、ユーザーがサインアウトする処理に応じて適切に設定してください
+        // 例: signOut() メソッドを使用してサインアウトした場合
+        // auth.signOut().then(() => {
+        //   isCallbackEnabled = true;
+        // });
+    
+      } else {
+        // User is signed out
+        // ...
+    
+        // コールバックの実行を一時的に無効にする
+        isCallbackEnabled = false;
+      }
+    });
     //test
     useEffect(() => {
       fetch('http://localhost:5000/getUsers')
@@ -437,19 +452,12 @@ type ProfileType = {
 
 //   // 必要に応じて他のイベントリスナーをここに追加
 // }, [socket]);
-const [opponent, setOpponentID] = useState('');
+const [message, setMsg] = useState('');
 const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
 let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
-function generateRoomId() {
-  roomId1 = Math.floor(Math.random() * 100000) + 1; // 新しい値を代入
-  setRoomId2(roomId1);
-  // generateRoomId の実行が完了した後に sendIdsToBackend を呼び出す
-  sendIdsToBackend(user, opponent, roomId1.toString());
-}
-
+const [receivedRoomId, setReceivedRoomId] = useState<string | null>(null);
 async function sendIdsToBackend(user: string, opponent: string, roomId: string) {
-  console.log("lflfg");
   console.log(user, opponent, roomId);
   try {
     const response = await fetch('http://localhost:5000/sendIds', {
@@ -457,7 +465,7 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ user, opponent, roomId }), // リクエストボディに roomId, user, opponent を含める
+      body: JSON.stringify({ user, opponent, roomId }),
     });
 
     if (!response.ok) {
@@ -466,14 +474,15 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
 
     const data = await response.json();
 
-    // レスポンスデータを基にした追加の処理をここに記述
+    // レスポンスデータからroomIdを取得して、useStateで保存
+    if (data && data.roomId) {
+      setReceivedRoomId(data.roomId);
+    }
+    
     console.log('Response Data:', data);
-
-    // 他の処理をここに追加
 
     return data;
   } catch (error) {
-    // エラーハンドリング
     console.error('Error:', error);
     throw error;
   }
@@ -482,8 +491,40 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
 // クリック時にopponentの値を設定するハンドラー
 function handleProfileClick(profileId: string) {
   const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
-  generateRoomId();
+  sendIdsToBackend(user, opponent, "df");
 }
+
+
+
+const handleSubmit = async () => {
+  try {
+    // 現在の日時をISO文字列として取得
+    const sentAt = new Date().toISOString();
+
+    const response = await fetch('http://localhost:5000/Msg', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message,
+        receivedRoomId,
+        userId,
+        sentAt,  // ここに送信時間を追加
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    console.log('Response Data:', data);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
@@ -520,9 +561,12 @@ function handleProfileClick(profileId: string) {
 
   </div>
   <Space.Compact style={{ width: '100%' }}>
-      <Input defaultValue="Combine input and button" />
-      <Button type="primary">Submit</Button>
-    </Space.Compact>
+  <Input 
+    defaultValue="Combine input and button" 
+    onChange={e => setMsg(e.target.value)}  // ここでsetMsgを使用して入力値を状態にセット
+  />
+  <Button type="primary" onClick={handleSubmit}>Submit</Button>
+</Space.Compact>
 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}

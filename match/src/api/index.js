@@ -50,6 +50,15 @@ const ProfileSchema = new mongoose.Schema({
   photo: String // これは写真のURLやパスを保存する文字列として考えられます。もし実際にバイナリデータとして画像を保存する場合は、適切な方法を検討する必要があります。
 });
 
+const MessageSchema = new mongoose.Schema({
+  message: String,
+  roomId: String,
+  userId: String,
+  sentAt: Date,
+});
+
+
+
 
 const Profile = mongoose.model('Profile', ProfileSchema);
 
@@ -352,9 +361,7 @@ const roomAndIdsSchema = new mongoose.Schema({
   idsArray: [String],
 });
 
-const RoomAndIds = mongoose.model('RoomAndIds', roomAndIdsSchema);
-
-app.post('/sendIds', async (req, res) => {
+const RoomAndIds = mongoose.model('RoomAndIds', roomAndIdsSchema);app.post('/sendIds', async (req, res) => {
   try {
     const { roomId, user, opponent } = req.body;
 
@@ -362,17 +369,73 @@ app.post('/sendIds', async (req, res) => {
       return res.status(400).json({ success: false, message: 'roomId, user, and opponent are required.' });
     }
 
-    // roomId と idsArray をデータベースに保存
+    // 既存のroomIdをチェック
+    const existingRoom = await RoomAndIds.findOne({
+      idsArray: { $all: [user, opponent] }
+    });
+
+    if (existingRoom) {
+      return res.json({ success: true, roomId: existingRoom.roomId });
+    }
+
+    // 新しいroomIdをデータベースに保存
     const roomAndIdsEntry = new RoomAndIds({ roomId, idsArray: [user, opponent] });
     await roomAndIdsEntry.save();
 
-    res.json({ success: true, message: 'Room and IDs saved successfully.' });
+    res.json({ success: true, roomId: roomId, message: 'Room and IDs saved successfully.' });
 
   } catch (err) {
     console.error('Error saving room and IDs:', err);
     res.status(500).json({ success: false, message: 'Error saving room and IDs!' });
   }
 });
+
+const Message = mongoose.model('Message', MessageSchema);
+
+app.post('/Msg', async (req, res) => {
+  try {
+    const { message, roomId, userId, sentAt } = req.body;
+
+    const newMessage = new Message({
+      message,
+      roomId,
+      userId,
+      sentAt: new Date(sentAt)
+    });
+
+    const savedMessage = await newMessage.save();
+
+    res.status(201).json({ success: true, message: 'Message sent successfully!', data: savedMessage });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+async function handleRoomClick(roomId) {
+  try {
+    const response = await fetch('http://localhost:5000/fetchRoomMessages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    console.log('Fetched Room Data:', data);
+
+    // TODO: 必要に応じてフェッチしたデータを状態やUIに反映させる
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
 io.on('connection', (socket) => {
   console.log('User connected');
@@ -386,4 +449,25 @@ io.on('connection', (socket) => {
       console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
       // You can add further processing here if needed
   });
+});
+
+app.post('/fetchRoomMessages', async (req, res) => {
+  const { roomId } = req.body;
+
+  try {
+    // この部分ではデータベースからルームIDに関連する情報をフェッチする。
+    // 例: const messages = await db.fetchMessagesByRoomId(roomId);
+
+    // フェッチしたデータをレスポンスとして送り返す。
+    res.json({
+      success: true,
+      messages: Message,  // 仮のデータ
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
 });

@@ -8,7 +8,6 @@ import axios from 'axios';
 import './firebaseConfig'; 
 import './Home.css';
 import 'particles.js';
-import './a.css'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 const bgStyle = {
   display: 'flex',
