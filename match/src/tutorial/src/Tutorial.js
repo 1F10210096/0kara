@@ -241,7 +241,10 @@ function Tutorial(room12) {
         room name: <input id="room-name" type="text" /><button className="bubbly-button">Click me!</button>
         <button id="join">join</button>
       </div> */}
-      <video id="local-video1" width="300px" muted playsInline></video>
+      <div className='a'>
+      <h1 className='b'>あなたの映像</h1>
+      <video id="local-video1" width="300px" muted playsInline>あなたのえ</video>
+      </div>
       <video id="local-video" width="300px"  muted playsInline></video>
       <div id="button-area"></div>
       <div id="remote-media-area"></div>

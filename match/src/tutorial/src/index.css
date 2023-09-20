@@ -1,6 +1,25 @@
+
 #local-video {
     position: relative; 
-    top: -100px;         
-    left: 120px;        
+    top: -220px;         
+    left: 210px;        
+
+}
+
+
+.a {
+    position: relative; 
+    top: 30px;         
+    left: 210px; 
+    width: 360px; 
+    height: 400px;;      
     border: 1px solid black;
+    padding: 20px;
+    padding-top: 90px;
+    background-image: url('simple-gradation_120.png'); 
+}
+
+.b {
+    color: black;
+    top: -50px;
 }
