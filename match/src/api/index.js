@@ -191,18 +191,23 @@ const WaitingUserSchema = new mongoose.Schema({
 
 //待機リストにユーザーを追加するエンドポイント:
 app.post('/waiting', async (req, res) => {
-  console.log("waiting")
+
+  console.log("Entered /waiting endpoint");  // ← 既に追加しています
+
   const { userId } = req.body;
   console.log(userId, "userId")
 
   // userIdが提供されていない、またはすでに待機リストに存在する場合はエラーを返す
   const exists = await WaitingUser.findOne({ userId });
+  console.log(exists)
   if (!userId || exists) {
     return res.status(400).json({ success: false, message: 'Invalid userId or user already in waiting list' });
   }
+  
 
   const user = new WaitingUser({ userId });
   user.save()
+  console.log("3ddd")
     .then(savedUser => {
       console.log(user)
       res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });

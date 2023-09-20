@@ -6,6 +6,8 @@ import {
   SkyWayStreamFactory,
   uuidV4,
 } from '@skyway-sdk/room';
+import { EditOutlined, EllipsisOutlined, SettingOutlined, HeartOutlined } from '@ant-design/icons';
+import { Avatar, Card } from 'antd';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { appId, secret } from '../../p2p-room/src/env';
 import { useEffect } from 'react';
@@ -18,7 +20,7 @@ import { set } from 'mongoose';
 
 
 const auth = getAuth();
-
+const { Meta } = Card;
 
 // var animateButton = function(e) {
 
@@ -51,7 +53,7 @@ function Tutorial(room12) {
   const [matchedUserId, setMatchedUserId] = useState(null);
   const [MyId, setMyId] = useState(null);
 
-
+  const [profile, setProfile] = useState({});
   
   useEffect(() => {
     let eventSource;
@@ -118,6 +120,7 @@ function Tutorial(room12) {
           if (response.data.success) {
             setUserProfile(response.data.profile);
             console.log(response.data.profile);
+            setProfile(response.data.profile);
           } else {
             setBackendResponse('No profile found for the given matchedUserId.');
           }
@@ -243,21 +246,42 @@ function Tutorial(room12) {
   useEffect(() => {
     setupSkyway(room12);
   }, []); 
+
+  
   return (
     <div>
-      <p>ID: <span id="my-id"></span></p>
-      <div>
+      {/* デバックしたければ */}
+      {/* <p>ID: <span id="my-id"></span></p> */}
+      {/* <div>
         room name: <input id="room-name" type="text" /><button className="bubbly-button">Click me!</button>
         <button id="join">join</button>
-      </div>
-      <video id="local-video" width="300px" muted playsInline></video>
+      </div> */}
+      <video id="local-video1" width="300px" muted playsInline></video>
       <video id="local-video" width="300px"  muted playsInline></video>
       <div id="button-area"></div>
       <div id="remote-media-area"></div>
       {matchedUserId && (
   <div>
-    <div>Matched with user ID: {matchedUserId}</div>
-    <button onClick={handleLikeClick}>いいね</button>
+    <Card
+    style={{ top:'-50px',left:'100px',width: 500 }}
+    cover={
+      <img
+        alt="example"
+        src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+      />
+    }
+    actions={[
+      <HeartOutlined key="setting" onClick={handleLikeClick}/>,
+      <EditOutlined key="edit" />,
+      <EllipsisOutlined key="ellipsis" />,
+    ]}
+  >
+    <Meta
+      avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel" />}
+      title={profile.nickname}
+      description={profile.comment} 
+    />
+  </Card>
   </div>
 )}
     </div>

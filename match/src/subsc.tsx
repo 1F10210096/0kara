@@ -22,7 +22,7 @@ const bgStyle = {
 
 const squareStyle = {
   width: '500px',
-  height: '600px',
+  height: '500px',
   backgroundColor: 'white',
   padding: '20px',
   zIndex: 1 
@@ -138,7 +138,7 @@ const Register: React.FC = () => {
   
   return (
     <div style={bgStyle}>
-          <div ref={particlesRef} id="particles-js" style={{ height: '100vh' }}></div>
+          <div ref={particlesRef} id="particles-js" style={{ height: '70vh' }}></div>
       <div id="particle" ref={particleRef}></div>;
         <div style={squareStyle}>
         <p className="fuchidori" style={{ fontSize: '30px' }}>アカウント作成</p>
@@ -187,13 +187,11 @@ const Register: React.FC = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="login-form-button">
-          Log in
+          登録
         </Button>
 
       </Form.Item>
-      <Link to="/register">register now!</Link>
-      <br /> 
-      <br /> 
+
       <Link to="/">back Home</Link>
     </Form>
 

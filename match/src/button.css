@@ -1,0 +1,13 @@
+.btn--orange,
+a.btn--orange {
+  color: #fff;
+  background-color: #eb6100;
+  top: 70%;
+  left:30%;
+  height:6%
+}
+.btn--orange:hover,
+a.btn--orange:hover {
+  color: #fff;
+  background: #f56500;
+}
