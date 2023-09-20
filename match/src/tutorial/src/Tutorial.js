@@ -245,7 +245,7 @@ function Tutorial(room12) {
       <h1 className='b'>あなたの映像</h1>
       <video id="local-video1" width="300px" muted playsInline>あなたのえ</video>
       </div>
-      <video id="local-video" width="300px"  muted playsInline></video>
+      <video id="local-video" width="300px" muted playsInline style={{ position: "fixed" ,top:'24%',left:'78%' }}></video>
       <div id="button-area"></div>
       <div id="remote-media-area"></div>
       {matchedUserId && (

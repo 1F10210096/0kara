@@ -198,7 +198,7 @@ app.post('/waiting', async (req, res) => {
   if (!userId || exists) {
     return res.status(400).json({ success: false, message: 'Invalid userId or user already in waiting list' });
   }
-  
+
 
   const user = new WaitingUser({ userId });
   user.save()
@@ -206,6 +206,7 @@ app.post('/waiting', async (req, res) => {
     .then(savedUser => {
       console.log(user)
       res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });
+      console.log("savedUser");
     })
     .catch(err => {
       res.json({ success: false, message: 'Error saving waiting user!' });
@@ -267,6 +268,7 @@ app.get('/matchUser/:userId', async (req, res) => {
     
     // クライアントにデータを送信する関数
     const sendData = (client, randomNum, matchedUserId) => {
+      console.log("Sendieeee:", client);
       const data = {
         roomNumber: randomNum,
         matchedUserId: matchedUserId
