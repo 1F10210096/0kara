@@ -27,7 +27,9 @@ import './button.js'
 // import './card.css';
 // import './a.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
+
 const items = [
+
   {
     label: 'いいねされた人',
     key: 'mail',
@@ -95,14 +97,17 @@ const Menu1: React.FC = () => {
     const [showP2p, setShowP2p] = useState(true);
     const [isInWaitingList, setIsInWaitingList] = useState(false);
     const roomNameInputRef = useRef<HTMLInputElement>(null);
+
     
     const [isModalOpen, setIsModalOpen] = useState(true);
+
     const [usernames, setUsernames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [user, setUserID] = useState('');
 
     const auth = getAuth();
+
     useEffect(() => {
       // ユーザーの認証状態の変更を監視するリスナーをセットアップ
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -119,6 +124,7 @@ const Menu1: React.FC = () => {
           unsubscribe();
       };
   }, [auth]); // authを依存配列に追加
+
 
     //test
     useEffect(() => {
@@ -197,10 +203,14 @@ const Menu1: React.FC = () => {
 
   const userId = user
 
+
   async function sendUserIdToBackend() {
     try {
       console.log('Sending userId to backend...');
+
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
+      console.log("dawddd")
+      console.log(response);
       if (response.data.success) {
         console.log('User added to waiting list');
         
@@ -274,6 +284,7 @@ const Menu1: React.FC = () => {
   async function requestMatching(userId: string) {
     console.log('Requesting matching...');
     try {
+      console.log(userId,"match");
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
       if (response.data.success) {
         const roomName = response.data.roomName;  // サーバーから送られてくるランダムな部屋名
@@ -302,6 +313,7 @@ const Menu1: React.FC = () => {
   
   
   function connect() {
+
     setIsModalOpen(false);
   }
 
@@ -336,6 +348,7 @@ const Menu1: React.FC = () => {
     checkIfInWaitingList();
   }, []);
   
+
   const room12 =  generateRandomRoomName();
   // console.log(room12)
   // Tutorial(room12);
@@ -368,37 +381,22 @@ const [isVisible, setIsVisible] = React.useState(true);
 
 
 
-// const [socket, setSocket] = useState(null);
 
-// useEffect(() => {
-//   // ソケットの接続
-//   const newSocket = socketIOClient(API_ENDPOINT;
-//   setSocket(newSocket);
 
-//   return () => {
-//     // コンポーネントがアンマウントされるとき、ソケットの接続を切断します。
-//     newSocket.disconnect();
-//   }
-// }, []);
+  Tutorial();
 
-// useEffect(() => {
-//   if (!socket) return;
+  
 
-//   // イベントリスナーの例
-//   socket.on('connect', () => {
-//     console.log('Connected to the server');
-//   });
-
-//   // 必要に応じて他のイベントリスナーをここに追加
-// }, [socket]);
 
 
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
+
 </div> 
       
   </div>
+
 
   <Menu 
       style={{ height: '50px', fontSize: '16px',left: '43px' }} 
@@ -415,12 +413,14 @@ const [isVisible, setIsVisible] = React.useState(true);
       {/* <Modal title="カメラをつけ、運命の人を見つけよう！" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>実際の映像が流れます。</p>
       </Modal> */}
+
       <div className="buttons">
   {/* <button class="btn btn-gradient"> hover me </button>
  <button class="btn btn-gradient gradient2"> hover me </button>
  <button class="btn btn-gradient gradient3"> hover me </button>
  <button class="btn btn-gradient gradient4"> hover me </button> */}
 </div>
+
 <div>
       <Modal title="未来の恋人を探そう" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
         <p>恋人候補が表示されます。</p>
@@ -428,6 +428,7 @@ const [isVisible, setIsVisible] = React.useState(true);
       </Modal>
     </div>
     <button className="bubbly-button">Connect</button>
+
       <ReactplosiveModal
       title={<h4>Title</h4>}
       isVisible={isModalVisible}
@@ -436,6 +437,7 @@ const [isVisible, setIsVisible] = React.useState(true);
       <p> Lorem ipsum dolor sit amet.</p>
       <button>I do nothing.</button>
     </ReactplosiveModal>
+
     </>
         { showP2p && <Tutorial /> }
         </div> 
