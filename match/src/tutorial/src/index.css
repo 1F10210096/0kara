@@ -1,5 +1,6 @@
 #local-video {
     position: relative; 
-    top: -20px;         
-    left: 700px;        
+    top: -100px;         
+    left: 120px;        
+    border: 1px solid black;
 }

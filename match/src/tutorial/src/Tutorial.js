@@ -231,6 +231,8 @@ function Tutorial(room12) {
   useEffect(() => {
     setupSkyway(room12);
   }, []); 
+
+  
   return (
     <div>
       {/* デバックしたければ */}
@@ -239,7 +241,7 @@ function Tutorial(room12) {
         room name: <input id="room-name" type="text" /><button className="bubbly-button">Click me!</button>
         <button id="join">join</button>
       </div> */}
-      <video id="local-video" width="300px" muted playsInline></video>
+      <video id="local-video1" width="300px" muted playsInline></video>
       <video id="local-video" width="300px"  muted playsInline></video>
       <div id="button-area"></div>
       <div id="remote-media-area"></div>

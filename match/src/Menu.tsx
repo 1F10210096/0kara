@@ -67,7 +67,7 @@ const bg2Style: React.CSSProperties = {
 
 const bg3Style = {
   display: 'flex',
-  height: '88vh',
+  height: '76vh',
   width: '28vw',
   justifyContent: 'center',
   alignItems: 'center',
@@ -77,11 +77,12 @@ const bg3Style = {
 const bg4Style: React.CSSProperties = {
   display: 'flex',
   height: '100vh',
-  width: '70vw',
+  width: '73vw',
   position: 'absolute',
   top: '1px',
   left: '430px',
   backgroundSize: 'cover',
+  backgroundColor: '#f2f3f5',
   border: '1px solid #e1e1e1'
 };
 
@@ -426,7 +427,7 @@ const [isVisible, setIsVisible] = React.useState(true);
         <p>connectボタンが押されると、マッチングを開始します</p>
       </Modal>
     </div>
-    <button className="bubbly-button">Click me!</button>
+    <button className="bubbly-button">Connect</button>
       <ReactplosiveModal
       title={<h4>Title</h4>}
       isVisible={isModalVisible}
