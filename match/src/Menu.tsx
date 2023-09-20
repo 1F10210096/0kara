@@ -20,6 +20,9 @@ import ReactplosiveModal from "reactplosive-modal";
 // import socketIOClient from "socket.io-client";
 import { set } from 'mongoose';
 import Like from './like';
+import './button.css';
+import './butt.scss'
+import './button.js'
 
 // import './card.css';
 // import './a.css';
@@ -32,7 +35,7 @@ const items = [
     icon: <UserAddOutlined />,
   },
   {
-    label: 'メッセージ',
+    label: <Link to="/Dmg">メッセージ</Link>, 
     key: 'app',
     path: '/messages',
     icon: <UserOutlined />,
@@ -65,7 +68,7 @@ const bg2Style: React.CSSProperties = {
 const bg3Style = {
   display: 'flex',
   height: '88vh',
-  width: '29vw',
+  width: '28vw',
   justifyContent: 'center',
   alignItems: 'center',
   backgroundSize: 'cover',
@@ -99,19 +102,22 @@ const Menu1: React.FC = () => {
     const [user, setUserID] = useState('');
 
     const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.uid;
-    setUserID(uid);
-    console.log(uid)
-    // ...
-  } else {
-    // User is signed out
-    // ...
-  }
-});
+    useEffect(() => {
+      // ユーザーの認証状態の変更を監視するリスナーをセットアップ
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+              const uid = user.uid;
+              setUserID(uid);
+          } else {
+              // 必要に応じてログアウト時の処理を追加
+          }
+      });
+
+      // クリーンアップ関数: コンポーネントのアンマウント時にリスナーを解除
+      return () => {
+          unsubscribe();
+      };
+  }, [auth]); // authを依存配列に追加
 
     //test
     useEffect(() => {
@@ -190,8 +196,9 @@ onAuthStateChanged(auth, (user) => {
 
   const userId = user
 
-  async function sendUserIdToBackend(user: string) {
+  async function sendUserIdToBackend() {
     try {
+      console.log('Sending userId to backend...');
       const response = await axios.post(`${API_ENDPOINT}/waiting`, { userId });
       if (response.data.success) {
         console.log('User added to waiting list');
@@ -264,6 +271,7 @@ onAuthStateChanged(auth, (user) => {
   }, [user]);
 
   async function requestMatching(userId: string) {
+    console.log('Requesting matching...');
     try {
       const response = await axios.get(`${API_ENDPOINT}/matchUser/${userId}`);
       if (response.data.success) {
@@ -289,12 +297,18 @@ onAuthStateChanged(auth, (user) => {
       joinButton.click();  // ボタンのクリックイベントを強制的にトリガー
     }
   }
+  console.log("kff")
   
   
   function connect() {
-    sendUserIdToBackend(userId);
-    // setIsModalOpen(false);
+    setIsModalOpen(false);
   }
+
+
+  function connect2() {
+    sendUserIdToBackend();
+  }
+
   function generateRandomRoomName() {
     return `room_${uuidV4()}`; // uuidを使ってユニークな部屋名を生成
   }
@@ -348,6 +362,7 @@ type ProfileType = {
   photo: string;
   // 他の必要なプロパティもここに追加してください
 };
+const [isVisible, setIsVisible] = React.useState(true);
 
 
 
@@ -381,24 +396,15 @@ type ProfileType = {
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
 </div> 
-       <div className="container">
-     <section className="containerInner">
-       {/* <h2 className="header">Modal title</h2> */}
-  
-       <div className="buttonContainer">
-       </div>
-     </section>
-   </div>
+      
   </div>
 
   <Menu 
-      style={{ height: '50px' }} 
-      onClick={onClick} 
+      style={{ height: '50px', fontSize: '16px',left: '43px' }} 
       selectedKeys={[current]} 
       mode="horizontal" 
       items={items} 
     />
-     <Link to="/Dmg" >Dmg</Link>
     <div style={bg3Style}> <Like></Like>
 </div>
     <div style={bg4Style}>
@@ -414,7 +420,13 @@ type ProfileType = {
  <button class="btn btn-gradient gradient3"> hover me </button>
  <button class="btn btn-gradient gradient4"> hover me </button> */}
 </div>
-      <div onClick={connect}>fuji</div>
+<div>
+      <Modal title="未来の恋人を探そう" open={isModalOpen} onOk={connect} onCancel={handleCancel}>
+        <p>恋人候補が表示されます。</p>
+        <p>connectボタンが押されると、マッチングを開始します</p>
+      </Modal>
+    </div>
+    <button className="bubbly-button">Click me!</button>
       <ReactplosiveModal
       title={<h4>Title</h4>}
       isVisible={isModalVisible}
@@ -424,7 +436,8 @@ type ProfileType = {
       <button>I do nothing.</button>
     </ReactplosiveModal>
     </>
-        { showP2p && <Tutorial /> }</div> 
+        { showP2p && <Tutorial /> }
+        </div> 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>
       <Button icon={<SearchOutlined />} onClick={Friend}>Friend</Button> */}
 
