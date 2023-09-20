@@ -202,15 +202,15 @@ app.post('/waiting', async (req, res) => {
 
   const user = new WaitingUser({ userId });
   user.save()
-  console.log("3ddd")
-    .then(savedUser => {
-      console.log(user)
-      res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });
-      console.log("savedUser");
-    })
-    .catch(err => {
-      res.json({ success: false, message: 'Error saving waiting user!' });
-    });
+  .then(savedUser => {
+    console.log("3ddd");
+    console.log(savedUser);  // もし savedUser の情報をログとして出力したい場合
+    res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });
+  })
+  .catch(err => {
+    console.error(err); // 保存時のエラーをログに出力
+    res.json({ success: false, message: 'Error saving waiting user!' });
+  });
 });
 
 //待機中の接続者リストを取得するエンドポイント:
