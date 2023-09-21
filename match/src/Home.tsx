@@ -115,7 +115,7 @@ useEffect(() => {
 
   return (
     <div style={bgStyle}>
-<h2>MatchigApp</h2>
+<h2 style={{marginRight:'100%'}}>MatchigApp</h2>
 <div className="btn-container">
 <Link to="/page_a" className="btn btn-gradient">
             <span>Login</span>

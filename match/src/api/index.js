@@ -203,18 +203,19 @@ app.post('/waiting', async (req, res) => {
   if (!userId || exists) {
     return res.status(400).json({ success: false, message: 'Invalid userId or user already in waiting list' });
   }
-  
+
 
   const user = new WaitingUser({ userId });
   user.save()
-  console.log("3ddd")
-    .then(savedUser => {
-      console.log(user)
-      res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });
-    })
-    .catch(err => {
-      res.json({ success: false, message: 'Error saving waiting user!' });
-    });
+  .then(savedUser => {
+    console.log("3ddd");
+    console.log(savedUser);  // もし savedUser の情報をログとして出力したい場合
+    res.json({ success: true, message: 'User added to waiting list', waitingUserId: savedUser._id });
+  })
+  .catch(err => {
+    console.error(err); // 保存時のエラーをログに出力
+    res.json({ success: false, message: 'Error saving waiting user!' });
+  });
 });
 
 //待機中の接続者リストを取得するエンドポイント:
@@ -272,6 +273,7 @@ app.get('/matchUser/:userId', async (req, res) => {
     
     // クライアントにデータを送信する関数
     const sendData = (client, randomNum, matchedUserId) => {
+      console.log("Sendieeee:", client);
       const data = {
         roomNumber: randomNum,
         matchedUserId: matchedUserId

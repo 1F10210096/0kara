@@ -84,7 +84,7 @@ const bg4Style: React.CSSProperties = {
   top: '1px',
   left: '430px',
   backgroundSize: 'cover',
-  backgroundColor: '#f2f3f5',
+  // backgroundColor: '#f2f3f5',
   border: '1px solid #e1e1e1'
 };
 
@@ -320,6 +320,7 @@ const Menu1: React.FC = () => {
 
   function connect2() {
     sendUserIdToBackend();
+    // setButtonVisibility(false);
   }
 
   function generateRandomRoomName() {
@@ -350,6 +351,9 @@ const Menu1: React.FC = () => {
   
 
   const room12 =  generateRandomRoomName();
+
+  const [isButtonVisible, setButtonVisibility] = useState(true);
+
   // console.log(room12)
   // Tutorial(room12);
 //   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
@@ -426,9 +430,10 @@ const [isVisible, setIsVisible] = React.useState(true);
         <p>恋人候補が表示されます。</p>
         <p>connectボタンが押されると、マッチングを開始します</p>
       </Modal>
-    </div>
-    <button className="bubbly-button">Connect</button>
 
+    </div>{isButtonVisible && (
+        <button className="bubbly-button" onClick={connect2}>Connect</button>
+      )}
       <ReactplosiveModal
       title={<h4>Title</h4>}
       isVisible={isModalVisible}
