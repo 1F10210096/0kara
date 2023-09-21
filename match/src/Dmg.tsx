@@ -21,7 +21,7 @@ import ReactplosiveModal from "reactplosive-modal";
 import { set } from 'mongoose';
 import Like from './like';
 // import './card.css';
-// import './a.css';
+import './dm.css';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -438,11 +438,28 @@ type ProfileType = {
 //   // 必要に応じて他のイベントリスナーをここに追加
 // }, [socket]);
 const [message, setMsg] = useState('');
-const [recievemessage, setreMsg] = useState();
+const [recievemessage, setreMsg] = useState<Message[]>([]);
 const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
 let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
+
 const [receivedRoomId, setReceivedRoomId] = useState<string | null>(null);
+
+
+interface Message {
+  _id: string;
+  message: string;
+  roomId: string;
+  sentAt: string;
+  userId: string;
+}function sortMessagesByTime(receivemessage: Message[]): Message[] {
+  return receivemessage.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
+}
+
+function isOwnMessage(recivemessage: Message, user: string): boolean {
+  return recivemessage.userId === user;
+}
+
 async function sendIdsToBackend(user: string, opponent: string, roomId: string) {
   console.log(user, opponent, roomId);
   try {
@@ -466,6 +483,8 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
     }
     
     console.log('Response Data:', data);
+    const sortedMessages = sortMessagesByTime(recievemessage);
+    setreMsg(sortedMessages);
 
     return data;
   } catch (error) {
@@ -544,6 +563,7 @@ async function handleRoomClick(roomId: string) {
 
 
 
+
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
 </div> 
@@ -577,6 +597,16 @@ async function handleRoomClick(roomId: string) {
     </>
 
   </div>
+  <div className="message-list">
+            {recievemessage.map(message => (
+                <div 
+                    key={message._id}
+                    className={`message ${isOwnMessage(message, user) ? 'own' : 'other'}`}
+                >
+                    {message.message}
+                </div>
+            ))}
+        </div>
   <Space.Compact style={{ width: '100%' }}>
   <Input 
     defaultValue={message} 
