@@ -401,6 +401,7 @@ const Message = mongoose.model('Message', MessageSchema);
 app.post('/Msg', async (req, res) => {
   try {
     const { message, roomId, userId, sentAt } = req.body;
+    console.log("message", roomId)
 
     const newMessage = new Message({
       message,
@@ -475,5 +476,20 @@ app.post('/fetchRoomMessages', async (req, res) => {
       success: false,
       message: 'Internal server error',
     });
+  }
+});
+
+app.post('/fetchMessages', async (req, res) => {
+  try {
+    const { roomId } = req.body;
+
+    // roomIdに一致するすべてのメッセージを検索します
+    const messages = await Message.find({ roomId });
+
+    res.status(200).json({ success: true, data: messages });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });

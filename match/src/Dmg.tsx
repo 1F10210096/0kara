@@ -135,37 +135,22 @@ const Dmg: React.FC = () => {
     const auth = getAuth();// 初期値としてコールバックの実行フラグを true に設定
     let isCallbackEnabled = true;
     
-    onAuthStateChanged(auth, (user) => {
-      // コールバックの実行フラグが false の場合、何もしない
-      if (!isCallbackEnabled) {
-        return;
-      }
-    
-      if (user) {
-        // User is signed in
-        const uid = user.uid;
-        console.log(uid);
-        setUserID(uid);
-        // ...
-    
-        // コールバックの実行を一時的に無効にする
-        isCallbackEnabled = false;
-    
-        // ユーザーがサインアウトした後、再度コールバックを有効にする
-        // この部分は、ユーザーがサインアウトする処理に応じて適切に設定してください
-        // 例: signOut() メソッドを使用してサインアウトした場合
-        // auth.signOut().then(() => {
-        //   isCallbackEnabled = true;
-        // });
-    
-      } else {
-        // User is signed out
-        // ...
-    
-        // コールバックの実行を一時的に無効にする
-        isCallbackEnabled = false;
-      }
-    });
+    useEffect(() => {
+      // ユーザーの認証状態の変更を監視するリスナーをセットアップ
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+              const uid = user.uid;
+              setUserID(uid);
+          } else {
+              // 必要に応じてログアウト時の処理を追加
+          }
+      });
+
+      // クリーンアップ関数: コンポーネントのアンマウント時にリスナーを解除
+      return () => {
+          unsubscribe();
+      };
+  }, [auth]); // authを依存配列に追加
     //test
     useEffect(() => {
       fetch('http://localhost:5000/getUsers')
@@ -453,6 +438,7 @@ type ProfileType = {
 //   // 必要に応じて他のイベントリスナーをここに追加
 // }, [socket]);
 const [message, setMsg] = useState('');
+const [recievemessage, setreMsg] = useState();
 const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
 let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
@@ -489,9 +475,10 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
 }
 
 // クリック時にopponentの値を設定するハンドラー
-function handleProfileClick(profileId: string) {
+function handleProfileClick(profileId: string,receivedRoomId: string) {
   const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
   sendIdsToBackend(user, opponent, "df");
+  handleRoomClick(receivedRoomId);
 }
 
 
@@ -500,6 +487,7 @@ const handleSubmit = async () => {
   try {
     // 現在の日時をISO文字列として取得
     const sentAt = new Date().toISOString();
+    console.log(receivedRoomId);
 
     const response = await fetch('http://localhost:5000/Msg', {
       method: 'POST',
@@ -508,7 +496,7 @@ const handleSubmit = async () => {
       },
       body: JSON.stringify({
         message,
-        receivedRoomId,
+        roomId: receivedRoomId,
         userId,
         sentAt,  // ここに送信時間を追加
       }),
@@ -525,6 +513,35 @@ const handleSubmit = async () => {
     console.error('Error:', error);
   }
 };
+
+
+async function handleRoomClick(roomId: string) {
+  try {
+    const response = await fetch('http://localhost:5000/fetchMessages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    console.log('Fetched Room Data:', data);
+    setreMsg(data.data);
+
+    // TODO: 必要に応じてフェッチしたデータを状態やUIに反映させる
+    // 例えば、状態管理のために新しいuseStateを使用するか、
+    // 既存の状態を更新してメッセージを表示することが考えられます。
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
 
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
@@ -545,7 +562,7 @@ const handleSubmit = async () => {
   <Like></Like>
   {
     Array.isArray(likedProfiles[0]) && likedProfiles[0].map((profileId, index) => (
-      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId)}>
+      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId,receivedRoomId as string)}>
   {profileId}
 </div>
     ))
@@ -562,7 +579,7 @@ const handleSubmit = async () => {
   </div>
   <Space.Compact style={{ width: '100%' }}>
   <Input 
-    defaultValue="Combine input and button" 
+    defaultValue={message} 
     onChange={e => setMsg(e.target.value)}  // ここでsetMsgを使用して入力値を状態にセット
   />
   <Button type="primary" onClick={handleSubmit}>Submit</Button>

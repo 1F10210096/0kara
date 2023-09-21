@@ -242,8 +242,8 @@ function Tutorial(room12) {
         <button id="join">join</button>
       </div> */}
       <div className='a'>
-      <h1 className='b'>あなたの映像</h1>
-      <video id="local-video1" width="300px" muted playsInline>あなたのえ</video>
+      <p className='b'>あなたの映像</p>
+      <video id="local-video1" width="300px" muted playsInline>あなたの</video>
       </div>
       <video id="local-video" width="300px" muted playsInline style={{ position: "fixed" ,top:'24%',left:'78%' }}></video>
       <div id="button-area"></div>
@@ -251,7 +251,7 @@ function Tutorial(room12) {
       {matchedUserId && (
   <div>
     <Card
-    style={{ top:'-50px',left:'100px',width: 500 }}
+    style={{ marginTop:'30%',left:'100px',width: 500 }}
     cover={
       <img
         alt="example"

@@ -82,7 +82,7 @@ const bg4Style: React.CSSProperties = {
   top: '1px',
   left: '430px',
   backgroundSize: 'cover',
-  // backgroundColor: '#f2f3f5',
+  backgroundColor: '#f2f3f5',
   border: '1px solid #e1e1e1'
 };
 
@@ -308,7 +308,7 @@ const Menu1: React.FC = () => {
 
   function connect2() {
     sendUserIdToBackend();
-    // setButtonVisibility(false);
+    setButtonVisibility(false);
   }
 
   function generateRandomRoomName() {
