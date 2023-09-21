@@ -1,0 +1,21 @@
+.message-list {
+    display: flex;
+    flex-direction: column-reverse;  /* 最新のメッセージを下に表示するため */
+    overflow-y: auto;  /* 必要に応じてスクロールバーを表示 */
+  }
+  
+  .message {
+    padding: 10px;
+    margin: 5px;
+    max-width: 70%;  /* メッセージの最大幅を設定 */
+  }
+  
+  .message.own {
+    align-self: flex-start;  /* 自分のメッセージは左側に表示 */
+    background-color: #e0f7fa;  /* 背景色を自分のメッセージ用に設定 */
+  }
+  
+  .message.other {
+    align-self: flex-end;  /* 他人のメッセージは右側に表示 */
+    background-color: #ffcdd2;  /* 背景色を他人のメッセージ用に設定 */
+  }
