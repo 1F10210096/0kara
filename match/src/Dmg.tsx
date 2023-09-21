@@ -17,7 +17,7 @@ import MatchingComponent from './match';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ReactplosiveModal from "reactplosive-modal";
-// import socketIOClient from "socket.io-client";
+import * as SocketIOClient from 'socket.io-client';
 import { set } from 'mongoose';
 import Like from './like';
 // import './card.css';
@@ -561,7 +561,7 @@ async function handleRoomClick(roomId: string) {
   }
 }
 
-const sendMessage = (user:string, message:string) => {
+const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string) => {
   const payload = {
     name: user,
     message: message
@@ -569,6 +569,7 @@ const sendMessage = (user:string, message:string) => {
 
   socket.send(JSON.stringify(payload));
 }
+
 
 
 
