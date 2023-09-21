@@ -456,6 +456,17 @@ io.on('connection', (socket) => {
       console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
       // You can add further processing here if needed
   });
+
+  socket.on('message', (payload) => {
+    const data = JSON.parse(payload);
+    const message = data.message;
+    const name = data.name;
+    
+    console.log(`${name} says: ${message}`);
+    
+    // 他のクライアントにメッセージをブロードキャストするなどの処理...
+  });
+  
 });
 
 app.post('/fetchRoomMessages', async (req, res) => {
@@ -493,3 +504,4 @@ app.post('/fetchMessages', async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
+

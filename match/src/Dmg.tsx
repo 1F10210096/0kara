@@ -561,6 +561,15 @@ async function handleRoomClick(roomId: string) {
   }
 }
 
+const sendMessage = (user:string, message:string) => {
+  const payload = {
+    name: user,
+    message: message
+  };
+
+  socket.send(JSON.stringify(payload));
+}
+
 
 
 
