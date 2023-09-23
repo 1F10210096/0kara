@@ -384,24 +384,30 @@ useEffect(() => {
   return () => {
     clearInterval(intervalId);
   };
-}, [user, attemptCount, maxAttempts, intervalTime]);
-  // console.log(room12)
-  // Tutorial(room12);
-//   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
-//   eventSource.onmessage = function(event) {
-//     const data = JSON.parse(event.data);
-    
-//     const roomNumber = data.roomNumber;
-//     const matchedUserId = data.matchedUserId;
 
-//     console.log(`マッチした部屋番号: ${roomNumber}`);
-//     console.log(`マッチしたユーザーID: ${matchedUserId}`);
+
+  //lllllll
+}, [user, attemptCount, maxAttempts, intervalTime]);
+  console.log(room12)
+  Tutorial(room12);
+  const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
+  eventSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
     
-//     // 必要に応じてDOMの更新や他の処理をここに追加
-// };eventSource.onerror = function(event) {
-//   console.error('エラーが発生しました:', event);
-//   eventSource.close();
-// };
+    const roomNumber = data.roomNumber;
+    const matchedUserId = data.matchedUserId;
+
+    console.log(`マッチした部屋番号: ${roomNumber}`);
+    console.log(`マッチしたユーザーID: ${matchedUserId}`);
+    
+    // 必要に応じてDOMの更新や他の処理をここに追加
+};eventSource.onerror = function(event) {
+  console.error('エラーが発生しました:', event);
+  eventSource.close();
+};
+
+
+
 type ProfileType = {
   ok: string;
   nickname: string;
