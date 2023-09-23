@@ -319,6 +319,7 @@ const Dmg: React.FC = () => {
   }, [user]);
   // ユーザ
 
+
   function joinRoom(roomName: string) {
     if (roomNameInputRef.current) {
       roomNameInputRef.current.value = roomName;  // inputに部屋名をセット
