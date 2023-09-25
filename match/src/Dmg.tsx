@@ -319,6 +319,7 @@ const Dmg: React.FC = () => {
   }, [user]);
   // ユーザ
 
+
   function joinRoom(roomName: string) {
     if (roomNameInputRef.current) {
       roomNameInputRef.current.value = roomName;  // inputに部屋名をセット
@@ -383,9 +384,12 @@ useEffect(() => {
   return () => {
     clearInterval(intervalId);
   };
+
+
+  //lllllll
 }, [user, attemptCount, maxAttempts, intervalTime]);
-  // console.log(room12)
-  // Tutorial(room12);
+//   console.log(room12)
+//   Tutorial(room12);
 //   const eventSource = new EventSource('http://localhost:5000/events?userId=${userId}');
 //   eventSource.onmessage = function(event) {
 //     const data = JSON.parse(event.data);
@@ -401,6 +405,9 @@ useEffect(() => {
 //   console.error('エラーが発生しました:', event);
 //   eventSource.close();
 // };
+
+
+
 type ProfileType = {
   ok: string;
   nickname: string;
