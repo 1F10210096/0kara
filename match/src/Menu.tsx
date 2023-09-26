@@ -398,6 +398,8 @@ const [isVisible, setIsVisible] = React.useState(true);
 
 
 
+
+
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
 </div> 

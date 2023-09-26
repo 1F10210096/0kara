@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const http = require('http');
@@ -299,23 +300,32 @@ app.get('/matchUser/:userId', async (req, res) => {
   }
 });
 
-try {
-  app.post('/api/profile', async (req, res) => {
-    const profileData = req.body;
-    
-    // データベースに保存
-    const profile = new Profile(profileData);
-    try {
-      await profile.save();
-      res.json({ success: true, message: 'Profile data saved successfully!' });
-    } catch (err) {
-      console.error("Error saving profile data:", err);
-      res.status(500).json({ success: false, message: 'Error saving profile data!' });
-    }
+
+
+
+
+try {// Configure multer storage
+  const storage = multer.memoryStorage();  // This stores the file in memory. You can also use `multer.diskStorage()` to store on disk
+  const upload = multer({ storage: storage });
+  
+  app.post('/api/profile', upload.single('photo'), (req, res) => {
+    const file = req.file;
+    const otherData = req.body;
+  
+    // TODO: Save the file and otherData to the database
+    // If using Firebase Storage, save the file there. For other databases like MongoDB, consider storing the file in a GridFS bucket.
+  
+    res.json({ success: true });
   });
 } catch (err) {
   console.log(err);
 }
+
+
+
+
+
+
 
 const WaitingUser = mongoose.model('WaitingUser', WaitingUserSchema);
 

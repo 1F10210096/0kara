@@ -14,11 +14,14 @@ import {
   Switch,
   TreeSelect,
   Upload,
+  UploadFile,
 } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined,SendOutlined } from '@ant-design/icons'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
+
+import type { RcFile, UploadProps } from 'antd/es/upload';
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 
@@ -37,8 +40,8 @@ export default function Myprofile() {
     gender: "",
     age: "",
     comment: "",
-    photo: null // 画像アップロードの場合は適切に管理する必要があります
-  });
+    photo: null as RcFile | null  // Type modification here
+});
   const [user, setUserID] = useState('');
 
   const auth = getAuth();
@@ -59,31 +62,40 @@ export default function Myprofile() {
   
   }, [auth]);
 
+
+  function isRcFile(obj: any): obj is RcFile {
+    return obj && obj.originFileObj && typeof obj.name === "string";
+  }
+
   const handleSubmit = async () => {
     try {
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null) { // Check if the value is not null
+          if (key === "photo" && isRcFile(value)) {
+            // Append the blob data if value is RcFile
+            data.append(key, (value as any).originFileObj, value.name);
+          } else if (typeof value === "string") {
+            data.append(key, value);
+          }
+        }
+      });
+  
       const response = await fetch('http://localhost:5000/api/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: data,  // Sending FormData instead of JSON
       });
-
-      // レスポンスをチェック
+  
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log(result);
-      // ここで必要に応じて処理を追加（例: レスポンスに基づくメッセージの表示）
     } catch (error) {
       console.error("There was an error sending the data:", error);
     }
   };
-
-
-
 
   return (
     <div style={{ backgroundColor: "pink", height: "100vh", display: "flex", justifyContent: "center" }}>
@@ -134,19 +146,16 @@ export default function Myprofile() {
             />
           </Form.Item>
 
-          <Form.Item label="写真" valuePropName="fileList" getValueFromEvent={normFile}>
-            <Upload
-              action="/upload.do"
-              listType="picture-card"
-              // fileList={formData.photo}
-              // onChange={info => setFormData(prev => ({ ...prev, photo: info.fileList }))}
-            >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
-          </Form.Item>
+          <Form.Item label="Profile Photo">
+  <Upload
+    beforeUpload={(file: RcFile) => {
+      setFormData(prev => ({ ...prev, photo: file }));
+      return false; // Prevent automatic upload
+    }}
+  >
+    <Button icon={<PlusOutlined />}>Upload</Button>
+  </Upload>
+</Form.Item>
 
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
  <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit}>
