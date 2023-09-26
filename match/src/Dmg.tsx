@@ -23,6 +23,7 @@ import Like from './like';
 // import './card.css';
 import './dm.css';
 import { reverse } from 'dns';
+import { io } from 'socket.io-client';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -419,6 +420,7 @@ type ProfileType = {
 const [message, setMsg] = useState('');
 const [recievemessage, setreMsg] = useState<Message[]>([]);
 const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
+const [opponent, setOpponent] = useState('');
 let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
 
@@ -462,7 +464,6 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
     if (data && data.roomId) {
       setReceivedRoomId(data.roomId);
     }
-    
 
     return data;
   } catch (error) {
@@ -474,6 +475,7 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
 // クリック時にopponentの値を設定するハンドラー
 function handleProfileClick(profileId: string,receivedRoomId: string) {
   const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
+  setOpponent(opponent)
   sendIdsToBackend(user, opponent, "df");
   handleRoomClick(receivedRoomId);
 }
@@ -504,7 +506,15 @@ const handleSubmit = async () => {
     }
 
     const data = await response.json();
-    console.log('Response Data:', data);
+    console.log('Response Data:', data)
+    const RoomId = receivedRoomId as string
+    const targetUserId =opponent;  // ここに送信先のユーザーIDを指定
+    sendMessageToUser(targetUserId, {
+      message,
+      roomId: RoomId,
+      userId,
+      sentAt
+    });
 
   } catch (error) {
     console.error('Error:', error);
@@ -550,8 +560,20 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
 }
 
 
+const socket: SocketIOClient.Socket = io('http://localhost:5000');
 
+// 自分のユーザーIDをサーバーに登録
+let myUserId = user;
+socket.emit('registerUser', myUserId);
 
+socket.on('receiveMessage', (message: Message) => {
+   console.log(message)
+});
+
+function sendMessageToUser(targetUserId: string, message: Partial<Message>): void {
+    socket.emit('sendMessage', { targetUserId, message });
+    console.log("plolop")
+}
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
@@ -559,8 +581,6 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
        <div className="container">
      <section className="containerInner">
        {/* <h2 className="header">Modal title</h2> */}
-
-  
        <div className="buttonContainer">
        </div>
      </section>
@@ -587,7 +607,6 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
       <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId,receivedRoomId as string)}>
   {profileId}
 </div>
-
     ))
   }
 </div>
