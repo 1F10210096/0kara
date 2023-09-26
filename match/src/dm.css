@@ -13,9 +13,25 @@
   .message.own {
     align-self: flex-start;  /* 自分のメッセージは左側に表示 */
     background-color: #e0f7fa;  /* 背景色を自分のメッセージ用に設定 */
+    margin-left: 30%;
   }
   
   .message.other {
     align-self: flex-end;  /* 他人のメッセージは右側に表示 */
     background-color: #ffcdd2;  /* 背景色を他人のメッセージ用に設定 */
   }
+
+  .custom-input {
+    width: 40%;
+
+    position: fixed;
+    z-index: 10;
+    top:85%;
+    left:40%
+}
+
+.custom-input2 {
+  position: fixed;
+  top:85%;
+  left:80%
+}
