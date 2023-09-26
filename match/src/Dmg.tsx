@@ -22,6 +22,8 @@ import { set } from 'mongoose';
 import Like from './like';
 // import './card.css';
 import './dm.css';
+import { reverse } from 'dns';
+import { io } from 'socket.io-client';
 const API_ENDPOINT = 'http://localhost:5000';  // あなたのバックエンドのエンドポイント
 
 const items: MenuProps['items'] = [
@@ -103,7 +105,9 @@ const bg3Style: React.CSSProperties = {
   justifyContent: 'center',
   alignItems: 'center',
   backgroundSize: 'cover',
-  borderRight: '1px solid #e1e1e1'
+  borderRight: '1px solid #e1e1e1',
+  position: 'fixed', 
+  top:'-429px'
 };
 const bg4Style: React.CSSProperties = {
   display: 'flex',
@@ -420,33 +424,10 @@ type ProfileType = {
 
 
 
-
-// const [socket, setSocket] = useState(null);
-
-// useEffect(() => {
-//   // ソケットの接続
-//   const newSocket = socketIOClient(API_ENDPOINT;
-//   setSocket(newSocket);
-
-//   return () => {
-//     // コンポーネントがアンマウントされるとき、ソケットの接続を切断します。
-//     newSocket.disconnect();
-//   }
-// }, []);
-
-// useEffect(() => {
-//   if (!socket) return;
-
-//   // イベントリスナーの例
-//   socket.on('connect', () => {
-//     console.log('Connected to the server');
-//   });
-
-//   // 必要に応じて他のイベントリスナーをここに追加
-// }, [socket]);
 const [message, setMsg] = useState('');
 const [recievemessage, setreMsg] = useState<Message[]>([]);
 const [roomId2, setRoomId2] = useState<number>(0); // 初期値を数値型に設定
+const [opponent, setOpponent] = useState('');
 let roomId1: number | undefined; // roomId を再代入可能な変数として宣言
 
 
@@ -459,10 +440,12 @@ interface Message {
   roomId: string;
   sentAt: string;
   userId: string;
-}function sortMessagesByTime(receivemessage: Message[]): Message[] {
-  return receivemessage.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
 }
 
+function sortMessagesByTime(receivemessage: Message[]): Message[] {
+  const sortedMessages = receivemessage.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
+  return sortedMessages;
+}
 function isOwnMessage(recivemessage: Message, user: string): boolean {
   return recivemessage.userId === user;
 }
@@ -488,10 +471,6 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
     if (data && data.roomId) {
       setReceivedRoomId(data.roomId);
     }
-    
-    console.log('Response Data:', data);
-    const sortedMessages = sortMessagesByTime(recievemessage);
-    setreMsg(sortedMessages);
 
     return data;
   } catch (error) {
@@ -503,6 +482,7 @@ async function sendIdsToBackend(user: string, opponent: string, roomId: string) 
 // クリック時にopponentの値を設定するハンドラー
 function handleProfileClick(profileId: string,receivedRoomId: string) {
   const opponent = profileId; // 直接ローカル変数として宣言し、値をセット
+  setOpponent(opponent)
   sendIdsToBackend(user, opponent, "df");
   handleRoomClick(receivedRoomId);
 }
@@ -533,7 +513,15 @@ const handleSubmit = async () => {
     }
 
     const data = await response.json();
-    console.log('Response Data:', data);
+    console.log('Response Data:', data)
+    const RoomId = receivedRoomId as string
+    const targetUserId =opponent;  // ここに送信先のユーザーIDを指定
+    sendMessageToUser(targetUserId, {
+      message,
+      roomId: RoomId,
+      userId,
+      sentAt
+    });
 
   } catch (error) {
     console.error('Error:', error);
@@ -557,7 +545,8 @@ async function handleRoomClick(roomId: string) {
 
     const data = await response.json();
     console.log('Fetched Room Data:', data);
-    setreMsg(data.data);
+    const sortedData = sortMessagesByTime(data.data);
+setreMsg(sortedData);
 
     // TODO: 必要に応じてフェッチしたデータを状態やUIに反映させる
     // 例えば、状態管理のために新しいuseStateを使用するか、
@@ -578,8 +567,20 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
 }
 
 
+const socket: SocketIOClient.Socket = io('http://localhost:5000');
 
+// 自分のユーザーIDをサーバーに登録
+let myUserId = user;
+socket.emit('registerUser', myUserId);
 
+socket.on('receiveMessage', (message: Message) => {
+   console.log(message)
+});
+
+function sendMessageToUser(targetUserId: string, message: Partial<Message>): void {
+    socket.emit('sendMessage', { targetUserId, message });
+    console.log("plolop")
+}
 
   return ( <><div style={bgStyle} onClick={showModal1}><Link to="/dm" style={bg2Style}></Link> <div style={{ color: "white", fontSize: "24px" }}>
   {profile.nickname}
@@ -587,33 +588,14 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
        <div className="container">
      <section className="containerInner">
        {/* <h2 className="header">Modal title</h2> */}
-  
        <div className="buttonContainer">
        </div>
      </section>
+     
    </div>
   </div>
 
   <Menu style={{ height: '50px' }} selectedKeys={[current]} mode="horizontal" items={items} />
-<div style={bg3Style}> 
-  <Like></Like>
-  {
-    Array.isArray(likedProfiles[0]) && likedProfiles[0].map((profileId, index) => (
-      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId,receivedRoomId as string)}>
-  {profileId}
-</div>
-    ))
-  }
-</div>
-<div style={bg4Style}>
-
-    {/* その他のコンポーネントや要素 */}
-    <MatchingComponent />
-    <>
-      {/* 他のコード */}
-    </>
-
-  </div>
   <div className="message-list">
             {recievemessage.map(message => (
                 <div 
@@ -624,12 +606,36 @@ const sendMessage = (socket: SocketIOClient.Socket, user:string, message:string)
                 </div>
             ))}
         </div>
+<div style={bg3Style}> 
+
+  <Like></Like>
+  {
+    Array.isArray(likedProfiles[0]) && likedProfiles[0].map((profileId, index) => (
+      <div key={index} style={{ border: '1px solid black', margin: '5px', padding: '5px', display: 'block' }}   onClick={() => handleProfileClick(profileId,receivedRoomId as string)}>
+  {profileId}
+</div>
+    ))
+  }
+</div>
+
+
+<div style={bg4Style}>
+
+    {/* その他のコンポーネントや要素 */}
+    <MatchingComponent />
+    <>
+      {/* 他のコード */}
+    </>
+
+  </div>
+
   <Space.Compact style={{ width: '100%' }}>
   <Input 
     defaultValue={message} 
     onChange={e => setMsg(e.target.value)}  // ここでsetMsgを使用して入力値を状態にセット
+    className='custom-input'
   />
-  <Button type="primary" onClick={handleSubmit}>Submit</Button>
+  <Button type="primary" onClick={handleSubmit} className='custom-input2'>Submit</Button>
 </Space.Compact>
 
   {/* <Button icon={<SearchOutlined />} onClick={search}>Search</Button>

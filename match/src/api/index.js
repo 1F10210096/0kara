@@ -471,31 +471,57 @@ async function handleRoomClick(roomId) {
     console.error('Error:', error);
   }
 }
+const users = {};  // ユーザーIDとソケットIDの関連付けを保持するオブジェクト
 
 io.on('connection', (socket) => {
-  console.log('User connected');
+    console.log('User connected');
 
-  socket.on('disconnect', () => {
-      console.log('User disconnected');
-  });
+    // ユーザーIDをソケットIDと関連付ける
+    socket.on('registerUser', (userId) => {
+        users[userId] = socket.id;
+    });
 
-  // Listen for a new like
-  socket.on('newLikeAdded', (data) => {
-      console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
-      // You can add further processing here if needed
-  });
+    // 特定のユーザーIDを持つクライアントにメッセージを送信する
+    socket.on('sendMessage', (data) => {
+      console.log("tryf")
+        const targetSocketId = users[data.targetUserId];
+        console.log("1")
+        console.log(targetSocketId)
+        if (targetSocketId) {
+          console.log("2")
+            io.to(targetSocketId).emit('receiveMessage', data.message);
+            console.log("3")
+        }
+    });
 
-  socket.on('message', (payload) => {
-    const data = JSON.parse(payload);
-    const message = data.message;
-    const name = data.name;
+    socket.on('disconnect', () => {
+        // 切断時にユーザーとソケットの関連付けを削除
+        const userIdToDelete = Object.keys(users).find(userId => users[userId] === socket.id);
+        if (userIdToDelete) {
+            delete users[userIdToDelete];
+        }
+        console.log('User disconnected');
+    });
+
+    // Listen for a new like
+    socket.on('newLikeAdded', (data) => {
+        console.log(`User with ID ${data.myId} liked user with ID ${data.userId}`);
+        // You can add further processing here if needed
+    });
+
+    socket.on('message', (payload) => {
+      console.log("uyuy")
     
-    console.log(`${name} says: ${message}`);
+      const data = JSON.parse(payload);
+      const message = data.message;
+      const name = data.name;
+      console.log("uyuy")
     
-    // 他のクライアントにメッセージをブロードキャストするなどの処理...
-  });
-  
+      console.log(`${name} says: ${message}`);
+      // 他のクライアントにメッセージをブロードキャストするなどの処理...
+    });
 });
+
 
 app.post('/fetchRoomMessages', async (req, res) => {
   const { roomId } = req.body;
