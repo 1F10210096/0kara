@@ -515,6 +515,7 @@ const handleSubmit = async () => {
       userId,
       sentAt
     });
+    handleRoomClick(RoomId)
 
 
   } catch (error) {
