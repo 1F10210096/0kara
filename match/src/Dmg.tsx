@@ -516,6 +516,7 @@ const handleSubmit = async () => {
       sentAt
     });
 
+
   } catch (error) {
     console.error('Error:', error);
   }
@@ -568,6 +569,7 @@ socket.emit('registerUser', myUserId);
 
 socket.on('receiveMessage', (message: Message) => {
    console.log(message)
+   setreMsg(prevMessages => [message, ...prevMessages]);
 });
 
 function sendMessageToUser(targetUserId: string, message: Partial<Message>): void {
